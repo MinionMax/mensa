@@ -1,0 +1,37 @@
+body{
+   display: flex;
+   justify-content: center;
+   flex-direction: column;
+}
+
+#player{
+    align-self: center;
+}
+
+.controls{
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    align-items: center;
+}
+
+.progress{
+    background-color: black;
+    width: 400px;
+    height: 4px;
+    margin-top: 20px;
+    margin-left: 10px;
+}
+
+.cursor{
+    width: 10px;
+    height: 10px;
+    bottom: 6px;
+    position: relative;
+    border-style: solid;
+}
+
+.fas{
+    align-self: center;
+    margin-right: 5px;
+}
