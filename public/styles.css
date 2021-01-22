@@ -29,9 +29,12 @@ body{
     bottom: 6px;
     position: relative;
     border-style: solid;
+    align-self: center;
 }
 
 .fas{
     align-self: center;
     margin-right: 5px;
+    margin-top: 20px;
+    cursor: pointer; 
 }

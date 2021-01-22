@@ -10,14 +10,18 @@
 <body>
     <div id="player"></div>
     <div class="controls">
-        <i class="fas fa-play"></i>
-        <i class="fas fa-pause"></i>
+        <div class="play">    
+            <i class="fas fa-play"></i>
+        </div>
+        <div class="pause">
+            <i class="fas fa-pause"></i>
+        </div>
         <div class="progress"> 
             <div class="cursor"></div>
         </div>
        
     </div>
+    <script src="/socket.io/socket.io.js"></script>
     <script src="main.js"></script>
 </body>
-
 </html>

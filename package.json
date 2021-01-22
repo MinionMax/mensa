@@ -1,0 +1,23 @@
+{
+  "name": "mensa",
+  "version": "1.0.0",
+  "description": "w2g.tv clone",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MinionMax/mensa.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MinionMax/mensa/issues"
+  },
+  "homepage": "https://github.com/MinionMax/mensa#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^3.1.0"
+  }
+}
