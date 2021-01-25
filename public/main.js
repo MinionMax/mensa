@@ -53,6 +53,36 @@ function pauseVideo(){
 	player.pauseVideo();
 }
 
+function volumeUp(){
+	var currVolume = player.getVolume();
+	player.setVolume(currVolume + 10)
+}
+
+function volumeDown(){
+	var currVolume = player.getVolume();
+	player.setVolume(currVolume - 10)
+}
+
+function openFullscreen() {
+	var video = document.querySelector("#player");
+	if (video.requestFullscreen) {
+	  video.requestFullscreen();
+	} else if (video.webkitRequestFullscreen) {
+	  video.webkitRequestFullscreen();
+	} else if (video.msRequestFullscreen) {
+	  video.msRequestFullscreen();
+	}
+}
+
+function closeFullscreen() {
+	if (document.exitFullscreen) {
+	  document.exitFullscreen();
+	} else if (document.webkitExitFullscreen) {
+	  document.webkitExitFullscreen();
+	} else if (document.msExitFullscreen) {
+	  document.msExitFullscreen();
+	}
+}
 
 function initUI(){
 	var playb = document.querySelector(".play");
@@ -123,3 +153,31 @@ socket.on("loadEvent", (data) => {
 	var video = document.querySelector("#player");
 	video.src = `https://www.youtube.com/embed/${data.videoId}?controls=0&disablekb=1&modestbranding=1&enablejsapi=1`;
 })
+
+//KB SHORTCUTS
+
+window.addEventListener("keydown", (event) =>{
+	switch(event.code){
+		case "Space":
+			if(player.getPlayerState() === 2 || -1) sendPlayEvent();
+			if(player.getPlayerState() === 1) sendPauseEvent();
+		break;
+		case "KeyF":
+			openFullscreen();
+		break;
+		case "Escape":
+			closeFullscreen();
+		break;
+		case "ArrowUp":
+			volumeUp();
+		break;
+		case "ArrowDown":
+			volumeDown();
+		break;
+		case "KeyM":
+			if(player.isMuted()) player.unMute();
+			else player.mute();
+		break;
+	}
+})
+
