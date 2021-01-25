@@ -17,8 +17,8 @@ io.on("connection", (socket) => {
         console.log("user disconnected");
     });
     socket.on("playerEvent", (data) => {
-        io.emit("playerEvent", data)
-        console.log(data)
+        io.emit("playerEvent", data);
+        console.log(data);
     })
 });
 

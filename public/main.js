@@ -12,7 +12,6 @@ function onYouTubeIframeAPIReady() {
 		width: '640',
 		videoId: 'M7lc1UVf-VE',
 		events: {
-			'onReady': onPlayerReady,
 			'onStateChange': onPlayerStateChange
 		},
 		playerVars: {
@@ -23,18 +22,15 @@ function onYouTubeIframeAPIReady() {
 	});
 }
 
-function onPlayerReady(event) {
-	event.target.playVideo();
-}
-
-
 var interval = null
 function onPlayerStateChange(event) {
 	if(event.data === YT.PlayerState.PLAYING){
 		interval = setInterval(progressLoop, 200)
+		// sendPlayEvent();
 	}
 	else{
 		if(interval) clearInterval(interval)
+		// sendPauseEvent();
 	}
 }
 
@@ -45,7 +41,8 @@ function progressLoop(){
 	cursor.style.left = fraction.toString() + "%";
 }
 
-function playVideo(){
+function playVideo(data){
+	player.seekTo(data.time);
 	player.playVideo();
 }
 
@@ -53,17 +50,25 @@ function pauseVideo(){
 	player.pauseVideo();
 }
 
+function sendPlayEvent(){
+	currData = { playerStatus: "play", time: player.getCurrentTime() };
+	socket.emit("playerEvent", currData);
+}
+
+function sendPauseEvent(){
+	currData = { playerStatus: "pause", time: player.getCurrentTime() };
+	socket.emit("playerEvent", currData);
+}
+
 function initBtns(){
 	var playb = document.querySelector(".play");
 	var pauseb = document.querySelector(".pause");
 	playb.addEventListener("click", () => {
-		currData = { playerStatus: "play", time: player.getCurrentTime() };
-		socket.emit("playerEvent", currData)
+		sendPlayEvent();
 	})
 	
 	pauseb.addEventListener("click", () => {
-		currData = { playerStatus: "pause", time: player.getCurrentTime() };
-		socket.emit("playerEvent", currData)
+		sendPauseEvent();
 	})
 }
 initBtns();
@@ -71,7 +76,7 @@ initBtns();
 
 socket.on("playerEvent", (data) => {
 	if(data.playerStatus === "play"){
-		playVideo();
+		playVideo(data);
 		console.log(data);
 	}else if(data.playerStatus === "pause"){
 		pauseVideo();
