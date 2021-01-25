@@ -1,3 +1,5 @@
+//PLAYER FUNCTIONS
+
 var tag = document.createElement('script');
 var socket = io();
 
@@ -10,7 +12,7 @@ function onYouTubeIframeAPIReady() {
 	player = new YT.Player('player', {
 		height: '390',
 		width: '640',
-		videoId: 'M7lc1UVf-VE',
+		videoId: "dQw4w9WgXcQ",
 		events: {
 			'onStateChange': onPlayerStateChange
 		},
@@ -34,6 +36,8 @@ function onPlayerStateChange(event) {
 	}
 }
 
+//UI FUNTIONS
+
 function progressLoop(){
 	var bar = document.querySelector(".progress");
 	var cursor = document.querySelector(".cursor");
@@ -50,6 +54,31 @@ function pauseVideo(){
 	player.pauseVideo();
 }
 
+
+function initBtns(){
+	var playb = document.querySelector(".play");
+	var pauseb = document.querySelector(".pause");
+	var submitb = document.querySelector(".submit-button");
+
+	playb.addEventListener("click", () => {
+		sendPlayEvent();
+	})
+	
+	pauseb.addEventListener("click", () => {
+		sendPauseEvent();
+	})
+
+	submitb.addEventListener("click", () => {
+		var input = document.querySelector(".URL");
+		if(input.value){
+			sendSubmitEvent();
+		}
+	})
+}
+initBtns();
+
+//SOCKET FUNCTIONS
+
 function sendPlayEvent(){
 	currData = { playerStatus: "play", time: player.getCurrentTime() };
 	socket.emit("playerEvent", currData);
@@ -60,19 +89,17 @@ function sendPauseEvent(){
 	socket.emit("playerEvent", currData);
 }
 
-function initBtns(){
-	var playb = document.querySelector(".play");
-	var pauseb = document.querySelector(".pause");
-	playb.addEventListener("click", () => {
-		sendPlayEvent();
-	})
-	
-	pauseb.addEventListener("click", () => {
-		sendPauseEvent();
-	})
+function sendSubmitEvent(){
+	var input = document.querySelector(".URL").value;
+	if(input.length === 43){
+		var id = input.split("watch?v=")[1];
+	}else if(input.length === 28){
+		var id = input.split(".be/")[1];
+	}
+	submitedData = { videoId: id };
+	socket.emit("submitEvent", submitedData);
+	document.querySelector(".URL").value = "";
 }
-initBtns();
-
 
 socket.on("playerEvent", (data) => {
 	if(data.playerStatus === "play"){
@@ -82,4 +109,9 @@ socket.on("playerEvent", (data) => {
 		pauseVideo();
 		console.log(data);
 	}
+})
+
+socket.on("loadEvent", (data) => {
+	var video = document.querySelector("#player");
+	video.src = `https://www.youtube.com/embed/${data.videoId}?controls=0&disablekb=1&modestbranding=1&enablejsapi=1`;
 })

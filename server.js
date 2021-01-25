@@ -13,13 +13,20 @@ app.get("/", (req, res) => {
 
 io.on("connection", (socket) => {
     console.log("a user connected");
+
     socket.on("disconnect", () => {
         console.log("user disconnected");
     });
+
     socket.on("playerEvent", (data) => {
         io.emit("playerEvent", data);
         console.log(data);
-    })
+    });
+
+    socket.on("submitEvent", (data) => {
+        io.emit("loadEvent", data);
+        console.log(data);
+    });
 });
 
 http.listen(PORT, () => console.log(`Listening on ${PORT}`));
