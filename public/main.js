@@ -39,7 +39,6 @@ function onPlayerStateChange(event) {
 //UI FUNTIONS
 
 function progressLoop(){
-	var bar = document.querySelector(".progress");
 	var cursor = document.querySelector(".cursor");
 	var fraction = player.getCurrentTime()/player.getDuration()*100;
 	cursor.style.left = fraction.toString() + "%";
@@ -55,10 +54,11 @@ function pauseVideo(){
 }
 
 
-function initBtns(){
+function initUI(){
 	var playb = document.querySelector(".play");
 	var pauseb = document.querySelector(".pause");
 	var submitb = document.querySelector(".submit-button");
+	var bar = document.querySelector(".progress");
 
 	playb.addEventListener("click", () => {
 		sendPlayEvent();
@@ -74,8 +74,16 @@ function initBtns(){
 			sendSubmitEvent();
 		}
 	})
+
+	bar.addEventListener("click", (event) => {
+		var duration = player.getDuration();
+		var offset = bar.offsetLeft;
+		var seekTo = (event.clientX - offset)/400*duration;
+		currData = { playerStatus: "play", time: seekTo };
+		socket.emit("playerEvent", currData);
+	})
 }
-initBtns();
+initUI();
 
 //SOCKET FUNCTIONS
 
@@ -104,10 +112,10 @@ function sendSubmitEvent(){
 socket.on("playerEvent", (data) => {
 	if(data.playerStatus === "play"){
 		playVideo(data);
-		console.log(data);
+		// console.log(data);
 	}else if(data.playerStatus === "pause"){
 		pauseVideo();
-		console.log(data);
+		// console.log(data);
 	}
 })
 

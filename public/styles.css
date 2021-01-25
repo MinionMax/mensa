@@ -22,7 +22,9 @@ body{
 .submit-button{
     font-family: "roboto mono";
     background-color: #407294;
-    color: white
+    color: white;
+    outline: none;
+    border: none;
 }
 
 .URL{
@@ -67,5 +69,5 @@ body{
     align-self: center;
     margin-right: 5px;
     margin-top: 20px;
-    cursor: pointer; 
+    cursor: pointer;
 }
