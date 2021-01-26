@@ -13,9 +13,6 @@ function onYouTubeIframeAPIReady() {
 		height: '390',
 		width: '640',
 		videoId: "dQw4w9WgXcQ",
-		events: {
-			'onStateChange': onPlayerStateChange
-		},
 		playerVars: {
 			'controls': 0,
 			'disablekb': 1,
@@ -24,17 +21,6 @@ function onYouTubeIframeAPIReady() {
 	});
 }
 
-var interval = null
-function onPlayerStateChange(event) {
-	if(event.data === YT.PlayerState.PLAYING){
-		interval = setInterval(progressLoop, 200)
-		// sendPlayEvent();
-	}
-	else{
-		if(interval) clearInterval(interval)
-		// sendPauseEvent();
-	}
-}
 
 //UI FUNTIONS
 
@@ -44,12 +30,15 @@ function progressLoop(){
 	cursor.style.left = fraction.toString() + "%";
 }
 
+var interval = null
 function playVideo(data){
 	player.seekTo(data.time);
+	interval = setInterval(progressLoop, 200)
 	player.playVideo();
 }
 
 function pauseVideo(){
+	if(interval) clearInterval(interval)
 	player.pauseVideo();
 }
 
@@ -92,16 +81,19 @@ function initUI(){
 
 	playb.addEventListener("click", () => {
 		sendPlayEvent();
+		storeSession();
 	})
 	
 	pauseb.addEventListener("click", () => {
 		sendPauseEvent();
+		storeSession();
 	})
 
 	submitb.addEventListener("click", () => {
 		var input = document.querySelector(".URL");
 		if(input.value){
 			sendSubmitEvent();
+			storeSession();
 		}
 	})
 
@@ -114,6 +106,26 @@ function initUI(){
 	})
 }
 initUI();
+
+function storeSession(){
+	var video = document.querySelector("#player");
+	var session = { video: video.src, time: player.getCurrentTime() };
+	localStorage.setItem("lastSession", JSON.stringify(session));
+	console.log(lastSession)
+}
+
+// window.onload = getSession();
+function getSession(){
+	var session = JSON.parse(localStorage.getItem("session"));
+	if(!session) {
+		var session = { video: video.src, time: player.getCurrentTime() };
+	};
+	var video = document.querySelector("#player");
+	video.src = session.video;
+	player.seekTo(session.time);
+	sendPlayEvent();
+	if(!session) return;
+}
 
 //SOCKET FUNCTIONS
 
