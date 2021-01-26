@@ -155,7 +155,7 @@ socket.on("loadEvent", (data) => {
 
 //KB SHORTCUTS
 
-window.addEventListener("keydown", (event) =>{
+document.addEventListener("keydown", (event) =>{
 	switch(event.code){
 		case "Space":
 			if(player.getPlayerState() === 2 || -1) sendPlayEvent();
