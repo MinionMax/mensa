@@ -52,6 +52,16 @@ function volumeDown(){
 	player.setVolume(currVolume - 10)
 }
 
+function minusFiveSec(){
+	currData = { playerStatus: "play", time: player.getCurrentTime() - 5 };
+	socket.emit("playerEvent", currData);
+}
+
+function plusFiveSec(){
+	currData = { playerStatus: "play", time: player.getCurrentTime() + 5 };
+	socket.emit("playerEvent", currData);
+}
+
 function openFullscreen() {
 	var video = document.querySelector("#player");
 	if (video.requestFullscreen) {
@@ -81,19 +91,16 @@ function initUI(){
 
 	playb.addEventListener("click", () => {
 		sendPlayEvent();
-		storeSession();
 	})
 	
 	pauseb.addEventListener("click", () => {
 		sendPauseEvent();
-		storeSession();
 	})
 
 	submitb.addEventListener("click", () => {
 		var input = document.querySelector(".URL");
 		if(input.value){
 			sendSubmitEvent();
-			storeSession();
 		}
 	})
 
@@ -106,26 +113,6 @@ function initUI(){
 	})
 }
 initUI();
-
-function storeSession(){
-	var video = document.querySelector("#player");
-	var session = { video: video.src, time: player.getCurrentTime() };
-	localStorage.setItem("lastSession", JSON.stringify(session));
-	console.log(lastSession)
-}
-
-// window.onload = getSession();
-function getSession(){
-	var session = JSON.parse(localStorage.getItem("session"));
-	if(!session) {
-		var session = { video: video.src, time: player.getCurrentTime() };
-	};
-	var video = document.querySelector("#player");
-	video.src = session.video;
-	player.seekTo(session.time);
-	sendPlayEvent();
-	if(!session) return;
-}
 
 //SOCKET FUNCTIONS
 
@@ -186,6 +173,11 @@ window.addEventListener("keydown", (event) =>{
 		case "ArrowDown":
 			volumeDown();
 		break;
+		case "ArrowLeft":
+			minusFiveSec();
+		break;
+		case "ArrowRight":
+			plusFiveSec();
 		case "KeyM":
 			if(player.isMuted()) player.unMute();
 			else player.mute();
