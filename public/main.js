@@ -1,4 +1,4 @@
-//PLAYER FUNCTIONS
+// PLAYER FUNCTIONS
 
 var tag = document.createElement('script');
 var socket = io();
@@ -13,16 +13,24 @@ function onYouTubeIframeAPIReady() {
 		height: '390',
 		width: '640',
 		videoId: "dQw4w9WgXcQ",
+		events: {
+			"onReady": onPlayerReady
+		},
 		playerVars: {
 			'controls': 0,
 			'disablekb': 1,
-			'modestbranding': 1,
+			'modestbranding': 1
 		}
 	});
 }
 
+function onPlayerReady(){
+	var videoURL = document.querySelector("#player").src;
+	var videoId = videoURL.split("embed/")[1].split("?")[0];
+	if(videoId === "dQw4w9WgXcQ") getSession();
+}
 
-//UI FUNTIONS
+// UI FUNTIONS
 
 function progressLoop(){
 	var cursor = document.querySelector(".cursor");
@@ -31,14 +39,17 @@ function progressLoop(){
 }
 
 var interval = null
+var interval2 = null
 function playVideo(data){
-	player.seekTo(data.time);
-	interval = setInterval(progressLoop, 200)
+	interval = setInterval(progressLoop, 200);
+	interval2 = setInterval(updateSession, 60000);
 	player.playVideo();
+	player.seekTo(data.time);
 }
 
 function pauseVideo(){
-	if(interval) clearInterval(interval)
+	if(interval) clearInterval(interval);
+	if(interval2) clearInterval(interval2);
 	player.pauseVideo();
 }
 
@@ -114,10 +125,16 @@ function initUI(){
 }
 initUI();
 
-//SOCKET FUNCTIONS
+// SOCKET FUNCTIONS
 
 function sendPlayEvent(){
-	currData = { playerStatus: "play", time: player.getCurrentTime() };
+	var videoURL = document.querySelector("#player").src;
+	if(videoURL.includes("start") && player.getPlayerState() === -1){
+		console.log("get it done")
+		currData = { playerStatus: "play", time: Number(videoURL.slice("start=")[1])};
+	} else{
+		currData = { playerStatus: "play", time: player.getCurrentTime() };
+	}
 	socket.emit("playerEvent", currData);
 }
 
@@ -126,16 +143,22 @@ function sendPauseEvent(){
 	socket.emit("playerEvent", currData);
 }
 
-function sendSubmitEvent(){
-	var input = document.querySelector(".URL").value;
-	if(input.length === 43){
-		var id = input.split("watch?v=")[1];
-	}else if(input.length === 28){
-		var id = input.split(".be/")[1];
+function sendSubmitEvent(data){
+	if(data){
+		submitedData = { videoId: data.videoId, time: data.time };
+		socket.emit("submitEvent", submitedData);
+	}else {
+		var input = document.querySelector(".URL").value;
+		if(input.length === 43){
+			var id = input.split("watch?v=")[1];
+		}else if(input.length === 28){
+			var id = input.split(".be/")[1];
+		}
+		submitedData = { videoId: id };
+		socket.emit("submitEvent", submitedData);
+		updateSession(submitedData);
+		document.querySelector(".URL").value = "";
 	}
-	submitedData = { videoId: id };
-	socket.emit("submitEvent", submitedData);
-	document.querySelector(".URL").value = "";
 }
 
 socket.on("playerEvent", (data) => {
@@ -150,10 +173,15 @@ socket.on("playerEvent", (data) => {
 
 socket.on("loadEvent", (data) => {
 	var video = document.querySelector("#player");
-	video.src = `https://www.youtube.com/embed/${data.videoId}?controls=0&disablekb=1&modestbranding=1&enablejsapi=1`;
+
+	if(data.time){
+		video.src = `https://www.youtube.com/embed/${data.videoId}?controls=0&disablekb=1&modestbranding=1&enablejsapi=1&start=${data.time}`;
+	} else{
+		video.src = `https://www.youtube.com/embed/${data.videoId}?controls=0&disablekb=1&modestbranding=1&enablejsapi=1`;
+	}
 })
 
-//KB SHORTCUTS
+// KB SHORTCUTS
 
 document.addEventListener("keydown", (event) =>{
 	switch(event.code){
@@ -185,3 +213,74 @@ document.addEventListener("keydown", (event) =>{
 	}
 })
 
+// SESSION CONNECTION
+
+function getSession(){
+	var sessionId = JSON.parse(localStorage.getItem("sessionId"));
+	if(!sessionId){
+		const newSession = async (url = "", body = {}) => {
+			const response = await fetch(url, {
+				method: "POST",
+				mode: "cors",
+				credentials: "omit",
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				redirect: "follow",
+				referrerPolicy: "no-referrer",
+				body: JSON.stringify(body)
+			});
+			return response.json();
+		}
+
+		var videoURL = document.querySelector("#player").src;
+		var videoId = videoURL.split("embed/")[1].split("?")[0];
+		newSession("https://mensa-sessions.herokuapp.com/sessions/new", { videoId: videoId })
+			.then(data => {
+				localStorage.setItem("sessionId", JSON.stringify(data.id));
+			});
+	} else {
+		const fetchSession = async (url = "") => {
+			const response = await fetch(url, {
+				method: "GET",
+				mode: "cors",
+				credentials: "omit",
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				redirect: "follow",
+				referrerPolicy: "no-referrer",
+			});
+			return response.json();
+		}
+
+		fetchSession(`https://mensa-sessions.herokuapp.com/sessions/last/${sessionId}`)
+			.then(data => {
+				sendSubmitEvent(data);
+			})
+	}
+}
+
+function updateSession(){
+	var sessionId = JSON.parse(localStorage.getItem("sessionId"));
+	const putSession = async (url = "", body = {}) => {
+		const response = await fetch(url, {
+			method: "PUT",
+			mode: "cors",
+			credentials: "omit",
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			redirect: "follow",
+			referrerPolicy: "no-referrer",
+			body: JSON.stringify(body)
+		});
+		return response.json();
+	}
+
+	var videoURL = document.querySelector("#player").src;
+	var videoId = videoURL.split("embed/")[1].split("?")[0];
+	var time = Math.floor(player.getCurrentTime());
+	update = { id: sessionId, videoId: videoId, time: time };
+	putSession("https://mensa-sessions.herokuapp.com/sessions/edit", update);
+}
