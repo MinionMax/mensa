@@ -9,7 +9,7 @@
 </head>
 <body>
     <form class="submit">
-        <input type="text" name="video" class="URL" placeholder="Enter YouTube URL here">
+        <input type="text" name="video" class="URL" placeholder="Enter YouTube URL or Session ID here"> 
         <button type="button" class="submit-button">submit</button>
     </form>
     <div id="player"></div>
@@ -23,7 +23,7 @@
         <div class="progress"> 
             <div class="cursor"></div>
         </div>
-       
+        <p class="sessionId"></p>
     </div>
     <script src="/socket.io/socket.io.js"></script>
     <script src="main.js"></script>

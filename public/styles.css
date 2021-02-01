@@ -72,3 +72,11 @@ body{
     margin-top: 20px;
     cursor: pointer;
 }
+
+.sessionId{
+    font-family: "roboto mono";
+    position: absolute;
+    left: 0;
+    top: 100%;
+    font-size: small;
+}

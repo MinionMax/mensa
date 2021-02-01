@@ -153,6 +153,11 @@ function sendSubmitEvent(data){
 			var id = input.split("watch?v=")[1];
 		}else if(input.length === 28){
 			var id = input.split(".be/")[1];
+		} else if(!input.includes("https://") && input.length === "e9df12f0-6464-11eb-b16d-0726cdac9c76".length){
+			localStorage.setItem("sessionId", JSON.stringify(input));
+			getSession();
+			document.querySelector(".URL").value = "";
+			return;
 		}
 		submitedData = { videoId: id };
 		socket.emit("submitEvent", submitedData);
@@ -283,4 +288,14 @@ function updateSession(){
 	var time = Math.floor(player.getCurrentTime());
 	update = { id: sessionId, videoId: videoId, time: time };
 	putSession("https://mensa-sessions.herokuapp.com/sessions/edit", update);
+}
+
+window.onload = showID();
+
+function showID(){
+	var sessionId = JSON.parse(localStorage.getItem("sessionId"));
+	if(sessionId){
+		var text = document.querySelector(".sessionId")
+		text.innerHTML = "your session Id: " + sessionId;
+	}
 }
