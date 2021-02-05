@@ -240,10 +240,12 @@ function getSession(){
 
 		var videoURL = document.querySelector("#player").src;
 		var videoId = videoURL.split("embed/")[1].split("?")[0];
-		newSession("https://mensa-sessions.herokuapp.com/sessions/new", { videoId: videoId })
-			.then(data => {
-				localStorage.setItem("sessionId", JSON.stringify(data.id));
-			});
+		roomNameGen().then((roomName) => {
+			newSession("https://mensa-sessions.herokuapp.com/sessions/new", { videoId: videoId, roomName: roomName[0]})
+				.then(data => {
+					localStorage.setItem("sessionId", JSON.stringify(data.id));
+				});
+		})
 	} else {
 		const fetchSession = async (url = "") => {
 			const response = await fetch(url, {
@@ -265,6 +267,12 @@ function getSession(){
 			})
 	}
 }
+
+async function roomNameGen(){
+	const response = await fetch("https://random-word-api.herokuapp.com/word")
+	return response.json();
+}
+
 
 function updateSession(){
 	var sessionId = JSON.parse(localStorage.getItem("sessionId"));
