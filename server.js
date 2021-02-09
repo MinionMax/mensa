@@ -14,18 +14,23 @@ app.get("/", (req, res) => {
 io.on("connection", (socket) => {
     console.log("a user connected");
 
-    socket.on("disconnect", () => {
-        console.log("user disconnected");
+    socket.on("joinEvent", (data) => {
+        socket.join(data);
+        console.log("user joined the room: " + data);
     });
 
     socket.on("playerEvent", (data) => {
-        io.emit("playerEvent", data);
+        io.to(data.room).emit("playerEvent", data);
         console.log(data);
     });
 
     socket.on("submitEvent", (data) => {
-        io.emit("loadEvent", data);
+        io.to(data.room).emit("loadEvent", data);
         console.log(data);
+    });
+
+    socket.on("disconnect", () => {
+        console.log("user disconnected");
     });
 });
 

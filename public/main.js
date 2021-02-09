@@ -64,12 +64,14 @@ function volumeDown(){
 }
 
 function minusFiveSec(){
-	currData = { playerStatus: "play", time: player.getCurrentTime() - 5 };
+	var roomName = JSON.parse(localStorage.getItem("roomName"));
+	currData = { playerStatus: "play", time: player.getCurrentTime() - 5, room: roomName };
 	socket.emit("playerEvent", currData);
 }
 
 function plusFiveSec(){
-	currData = { playerStatus: "play", time: player.getCurrentTime() + 5 };
+	var roomName = JSON.parse(localStorage.getItem("roomName"));
+	currData = { playerStatus: "play", time: player.getCurrentTime() + 5, room: roomName };
 	socket.emit("playerEvent", currData);
 }
 
@@ -119,7 +121,8 @@ function initUI(){
 		var duration = player.getDuration();
 		var offset = bar.offsetLeft;
 		var seekTo = (event.clientX - offset)/400*duration;
-		currData = { playerStatus: "play", time: seekTo };
+		var roomName = JSON.parse(localStorage.getItem("roomName"));
+		currData = { playerStatus: "play", time: seekTo, room: roomName };
 		socket.emit("playerEvent", currData);
 	})
 }
@@ -129,37 +132,42 @@ initUI();
 
 function sendPlayEvent(){
 	var videoURL = document.querySelector("#player").src;
+	var roomName = JSON.parse(localStorage.getItem("roomName"));
 	if(videoURL.includes("start") && player.getPlayerState() === -1){
-		console.log("get it done")
-		currData = { playerStatus: "play", time: Number(videoURL.slice("start=")[1])};
+		currData = { playerStatus: "play", time: Number(videoURL.slice("start=")[1]), room: roomName };
 	} else{
-		currData = { playerStatus: "play", time: player.getCurrentTime() };
+		currData = { playerStatus: "play", time: player.getCurrentTime(), room: roomName };
 	}
 	socket.emit("playerEvent", currData);
 }
 
 function sendPauseEvent(){
-	currData = { playerStatus: "pause", time: player.getCurrentTime() };
+	var roomName = JSON.parse(localStorage.getItem("roomName"));
+	currData = { playerStatus: "pause", time: player.getCurrentTime(), room: roomName };
 	socket.emit("playerEvent", currData);
 }
 
 function sendSubmitEvent(data){
+	var roomName = JSON.parse(localStorage.getItem("roomName"));
 	if(data){
-		submitedData = { videoId: data.videoId, time: data.time };
+		submitedData = { videoId: data.videoId, time: data.time, room: roomName };
 		socket.emit("submitEvent", submitedData);
-	}else {
+	} else {
 		var input = document.querySelector(".URL").value;
 		if(input.length === 43){
 			var id = input.split("watch?v=")[1];
-		}else if(input.length === 28){
+		} else if(input.length === 28){
 			var id = input.split(".be/")[1];
-		} else if(!input.includes("https://") && input.length === "e9df12f0-6464-11eb-b16d-0726cdac9c76".length){
+		} else if(!input.includes("https://") && input.length === 36){
 			localStorage.setItem("sessionId", JSON.stringify(input));
 			getSession();
+			showID();
 			document.querySelector(".URL").value = "";
 			return;
+		} else if(input.includes("https://") && input.length > 43){
+			var id = input.split("watch?v=")[1].split("?")[0];
 		}
-		submitedData = { videoId: id };
+		submitedData = { videoId: id, room: roomName };
 		socket.emit("submitEvent", submitedData);
 		updateSession(submitedData);
 		document.querySelector(".URL").value = "";
@@ -185,6 +193,10 @@ socket.on("loadEvent", (data) => {
 		video.src = `https://www.youtube.com/embed/${data.videoId}?controls=0&disablekb=1&modestbranding=1&enablejsapi=1`;
 	}
 })
+
+function joinRoom(data){
+	socket.emit("joinEvent", data.roomName);
+}
 
 // KB SHORTCUTS
 
@@ -223,7 +235,7 @@ document.addEventListener("keydown", (event) =>{
 function getSession(){
 	var sessionId = JSON.parse(localStorage.getItem("sessionId"));
 	if(!sessionId){
-		const newSession = async (url = "", body = {}) => {
+		const newSession = async (url, body) => {
 			const response = await fetch(url, {
 				method: "POST",
 				mode: "cors",
@@ -245,9 +257,10 @@ function getSession(){
 				.then(data => {
 					localStorage.setItem("sessionId", JSON.stringify(data.id));
 				});
+			localStorage.setItem("roomName", JSON.stringify(roomName));
 		})
 	} else {
-		const fetchSession = async (url = "") => {
+		const fetchSession = async (url) => {
 			const response = await fetch(url, {
 				method: "GET",
 				mode: "cors",
@@ -263,7 +276,9 @@ function getSession(){
 
 		fetchSession(`https://mensa-sessions.herokuapp.com/sessions/last/${sessionId}`)
 			.then(data => {
+				localStorage.setItem("roomName", JSON.stringify(data.roomName));
 				sendSubmitEvent(data);
+				joinRoom(data);
 			})
 	}
 }
@@ -276,7 +291,7 @@ async function roomNameGen(){
 
 function updateSession(){
 	var sessionId = JSON.parse(localStorage.getItem("sessionId"));
-	const putSession = async (url = "", body = {}) => {
+	const putSession = async (url, body) => {
 		const response = await fetch(url, {
 			method: "PUT",
 			mode: "cors",
