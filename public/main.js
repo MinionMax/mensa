@@ -277,8 +277,8 @@ function getSession(){
 		fetchSession(`https://mensa-sessions.herokuapp.com/sessions/last/${sessionId}`)
 			.then(data => {
 				localStorage.setItem("roomName", JSON.stringify(data.roomName));
-				sendSubmitEvent(data);
 				joinRoom(data);
+				sendSubmitEvent(data);
 			})
 	}
 }
