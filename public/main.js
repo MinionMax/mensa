@@ -1,5 +1,6 @@
+// ===============
 // PLAYER FUNCTIONS
-
+// ===============
 var tag = document.createElement('script');
 var socket = io();
 
@@ -10,8 +11,8 @@ firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 var player;
 function onYouTubeIframeAPIReady() {
 	player = new YT.Player('player', {
-		height: '390',
-		width: '640',
+		height: '540',
+		width: '960',
 		videoId: "dQw4w9WgXcQ",
 		events: {
 			"onReady": onPlayerReady
@@ -28,10 +29,12 @@ function onPlayerReady(){
 	var videoURL = document.querySelector("#player").src;
 	var videoId = videoURL.split("embed/")[1].split("?")[0];
 	if(videoId === "dQw4w9WgXcQ") getSession();
+	var previousVolume = localStorage.getItem("playerVolume");
+	player.setVolume(JSON.parse(previousVolume));
 }
-
+// ===============
 // UI FUNTIONS
-
+// ===============
 function progressLoop(){
 	var cursor = document.querySelector(".cursor");
 	var fraction = player.getCurrentTime()/player.getDuration()*100;
@@ -55,12 +58,26 @@ function pauseVideo(){
 
 function volumeUp(){
 	var currVolume = player.getVolume();
-	player.setVolume(currVolume + 10)
+	player.setVolume(currVolume + 10);
+	setMeter();
+	saveSettings();
 }
 
 function volumeDown(){
 	var currVolume = player.getVolume();
 	player.setVolume(currVolume - 10)
+	setMeter();
+	saveSettings();
+}
+
+function setMeter(){
+	var currVolume = player.getVolume();
+	var meter = document.querySelector(".meter")
+	meter.style.width = String(currVolume) + "%" 
+}
+
+function saveSettings(){
+	localStorage.setItem("playerVolume", JSON.stringify(player.getVolume()))
 }
 
 function minusFiveSec(){
@@ -101,6 +118,7 @@ function initUI(){
 	var pauseb = document.querySelector(".pause");
 	var submitb = document.querySelector(".submit-button");
 	var bar = document.querySelector(".progress");
+	var meter = document.querySelector(".volume-container");
 
 	playb.addEventListener("click", () => {
 		sendPlayEvent();
@@ -125,10 +143,22 @@ function initUI(){
 		currData = { playerStatus: "play", time: seekTo, room: roomName };
 		socket.emit("playerEvent", currData);
 	})
+
+	meter.addEventListener("click", (event) => {
+		var offset = meter.offsetLeft;
+		var fill = document.querySelector(".meter")
+		var volume = Math.floor((event.clientX - offset)/50*100);
+		player.setVolume(volume);
+		fill.style.width = String(volume) + "%"
+		saveSettings();
+	})	
 }
 initUI();
 
+
+// ===============
 // SOCKET FUNCTIONS
+// ===============
 
 function sendPlayEvent(){
 	var videoURL = document.querySelector("#player").src;
@@ -198,7 +228,9 @@ function joinRoom(data){
 	socket.emit("joinEvent", data.roomName);
 }
 
+// ===============
 // KB SHORTCUTS
+// ===============
 
 document.addEventListener("keydown", (event) =>{
 	switch(event.code){
@@ -224,14 +256,20 @@ document.addEventListener("keydown", (event) =>{
 		case "ArrowRight":
 			plusFiveSec();
 		case "KeyM":
-			if(player.isMuted()) player.unMute();
-			else player.mute();
+			var meter = document.querySelector(".meter")
+			if(player.isMuted()){
+				player.unMute();
+				meter.style.background = "var(--accent)";
+			} else{
+				player.mute();
+				meter.style.background = "grey";
+			}
 		break;
 	}
 })
-
+// ===============
 // SESSION CONNECTION
-
+// ===============
 function getSession(){
 	var sessionId = JSON.parse(localStorage.getItem("sessionId"));
 	if(!sessionId){

@@ -4,6 +4,9 @@ body{
    display: flex;
    justify-content: center;
    flex-direction: column;
+   --accent: #407294;
+   --text: black;
+   --alttext: white;
 }
 
 .submit{
@@ -21,7 +24,7 @@ body{
 
 .submit-button{
     font-family: "roboto mono";
-    background-color: #407294;
+    background-color: var(--accent);
     color: white;
     outline: none;
     border: none;
@@ -55,6 +58,7 @@ body{
     height: 4px;
     margin-top: 20px;
     margin-left: 10px;
+    margin-right: 8px;
     cursor: pointer;
 }
 
@@ -65,6 +69,7 @@ body{
     position: relative;
     border-style: solid;
     align-self: center;
+    transition: 200ms;
 }
 
 .fas{
@@ -80,4 +85,19 @@ body{
     left: 0;
     top: 100%;
     font-size: small;
+}
+
+.volume-container{
+    height: 10px;
+    border-style: solid;
+    width: 50px;
+    margin-top: 18px;
+    margin-left: 2px;
+    cursor: pointer;
+}
+
+.meter{
+    height: 100%;
+    background-color: var(--accent);
+    transition: 500ms;
 }
