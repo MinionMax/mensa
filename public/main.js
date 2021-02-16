@@ -30,8 +30,11 @@ function onPlayerReady(){
 	var videoId = videoURL.split("embed/")[1].split("?")[0];
 	if(videoId === "dQw4w9WgXcQ") getSession();
 	var previousVolume = localStorage.getItem("playerVolume");
+	localStorage.setItem("soughtTo", JSON.stringify("false"))
 	player.setVolume(JSON.parse(previousVolume));
 }
+
+
 // ===============
 // UI FUNTIONS
 // ===============
@@ -44,13 +47,27 @@ function progressLoop(){
 var interval = null
 var interval2 = null
 function playVideo(data){
+	var embedCode = document.querySelector("#player").src;
+	var soughtTo = JSON.parse(localStorage.getItem("soughtTo"))
+	if(embedCode.includes("&start" && soughtTo === "false")){
+		var startCode =	embedCode.split("&start=")[1];
+		player.seekTo(Number(startCode));
+		localStorage.setItem("soughtTo", JSON.stringify("true"))
+	}
 	interval = setInterval(progressLoop, 200);
 	interval2 = setInterval(updateSession, 60000);
 	player.playVideo();
-	player.seekTo(data.time);
+	setMeter();
+	if(soughtTo === "true"){
+		player.seekTo(data.time);
+	}
 }
 
 function pauseVideo(){
+	var embedCode = document.querySelector("#player").src;
+	if(embedCode.includes("&start")){
+		embedCode = document.querySelector("#player").src.split("&start=")[0];
+	}
 	if(interval) clearInterval(interval);
 	if(interval2) clearInterval(interval2);
 	player.pauseVideo();
@@ -199,7 +216,6 @@ function sendSubmitEvent(data){
 		}
 		submitedData = { videoId: id, room: roomName };
 		socket.emit("submitEvent", submitedData);
-		updateSession(submitedData);
 		document.querySelector(".URL").value = "";
 	}
 }
@@ -208,7 +224,7 @@ socket.on("playerEvent", (data) => {
 	if(data.playerStatus === "play"){
 		playVideo(data);
 		// console.log(data);
-	}else if(data.playerStatus === "pause"){
+	} else if(data.playerStatus === "pause"){
 		pauseVideo();
 		// console.log(data);
 	}
@@ -216,12 +232,12 @@ socket.on("playerEvent", (data) => {
 
 socket.on("loadEvent", (data) => {
 	var video = document.querySelector("#player");
-
 	if(data.time){
 		video.src = `https://www.youtube.com/embed/${data.videoId}?controls=0&disablekb=1&modestbranding=1&enablejsapi=1&start=${data.time}`;
 	} else{
 		video.src = `https://www.youtube.com/embed/${data.videoId}?controls=0&disablekb=1&modestbranding=1&enablejsapi=1`;
 	}
+	updateSession(submitedData);
 })
 
 function joinRoom(data){
@@ -267,6 +283,8 @@ document.addEventListener("keydown", (event) =>{
 		break;
 	}
 })
+
+
 // ===============
 // SESSION CONNECTION
 // ===============
@@ -288,12 +306,11 @@ function getSession(){
 			return response.json();
 		}
 
-		var videoURL = document.querySelector("#player").src;
-		var videoId = videoURL.split("embed/")[1].split("?")[0];
 		roomNameGen().then((roomName) => {
-			newSession("https://mensa-sessions.herokuapp.com/sessions/new", { videoId: videoId, roomName: roomName[0]})
+			newSession("https://mensa-sessions.herokuapp.com/sessions/new", { videoId: "undefined", roomName: roomName[0]})
 				.then(data => {
 					localStorage.setItem("sessionId", JSON.stringify(data.id));
+					showID();
 				});
 			localStorage.setItem("roomName", JSON.stringify(roomName));
 		})
