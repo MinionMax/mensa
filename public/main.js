@@ -49,7 +49,7 @@ var interval2 = null
 function playVideo(data){
 	var embedCode = document.querySelector("#player").src;
 	var soughtTo = JSON.parse(localStorage.getItem("soughtTo"));
-	if(!embed.includes("&start")){
+	if(!embedCode.includes("&start")){
 		localStorage.setItem("soughtTo", JSON.stringify(true));
 	}
 	if(embedCode.includes("&start") && !soughtTo){
