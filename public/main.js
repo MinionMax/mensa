@@ -49,6 +49,9 @@ var interval2 = null
 function playVideo(data){
 	var embedCode = document.querySelector("#player").src;
 	var soughtTo = JSON.parse(localStorage.getItem("soughtTo"));
+	if(!embed.includes("&start")){
+		localStorage.setItem("soughtTo", JSON.stringify(true));
+	}
 	if(embedCode.includes("&start") && !soughtTo){
 		var startCode =	embedCode.split("&start=")[1];
 		player.seekTo(Number(startCode));
@@ -64,10 +67,6 @@ function playVideo(data){
 }
 
 function pauseVideo(){
-	var embedCode = document.querySelector("#player").src;
-	if(embedCode.includes("&start")){
-		embedCode = document.querySelector("#player").src.split("&start=")[0];
-	}
 	if(interval) clearInterval(interval);
 	if(interval2) clearInterval(interval2);
 	player.pauseVideo();
