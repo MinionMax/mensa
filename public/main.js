@@ -30,7 +30,7 @@ function onPlayerReady(){
 	var videoId = videoURL.split("embed/")[1].split("?")[0];
 	if(videoId === "dQw4w9WgXcQ") getSession();
 	var previousVolume = localStorage.getItem("playerVolume");
-	localStorage.setItem("soughtTo", JSON.stringify("false"))
+	localStorage.setItem("soughtTo", JSON.stringify(false));
 	player.setVolume(JSON.parse(previousVolume));
 }
 
@@ -48,17 +48,17 @@ var interval = null
 var interval2 = null
 function playVideo(data){
 	var embedCode = document.querySelector("#player").src;
-	var soughtTo = JSON.parse(localStorage.getItem("soughtTo"))
-	if(embedCode.includes("&start" && soughtTo === "false")){
+	var soughtTo = JSON.parse(localStorage.getItem("soughtTo"));
+	if(embedCode.includes("&start") && !soughtTo){
 		var startCode =	embedCode.split("&start=")[1];
 		player.seekTo(Number(startCode));
-		localStorage.setItem("soughtTo", JSON.stringify("true"))
+		localStorage.setItem("soughtTo", JSON.stringify(true));
 	}
 	interval = setInterval(progressLoop, 200);
 	interval2 = setInterval(updateSession, 60000);
 	player.playVideo();
 	setMeter();
-	if(soughtTo === "true"){
+	if(soughtTo){
 		player.seekTo(data.time);
 	}
 }
@@ -206,7 +206,7 @@ function sendSubmitEvent(data){
 		} else if(input.length === 28){
 			var id = input.split(".be/")[1];
 		} else if(!input.includes("https://") && input.length === 36){
-			localStorage.setItem("sessionId", JSON.stringify(input));
+			writeCookie(input);
 			getSession();
 			showID();
 			document.querySelector(".URL").value = "";
@@ -237,17 +237,17 @@ socket.on("loadEvent", (data) => {
 	} else{
 		video.src = `https://www.youtube.com/embed/${data.videoId}?controls=0&disablekb=1&modestbranding=1&enablejsapi=1`;
 	}
-	updateSession(submitedData);
+	updateSession();
 })
 
 function joinRoom(data){
 	socket.emit("joinEvent", data.roomName);
 }
 
+
 // ===============
 // KB SHORTCUTS
 // ===============
-
 document.addEventListener("keydown", (event) =>{
 	switch(event.code){
 		case "Space":
@@ -289,8 +289,8 @@ document.addEventListener("keydown", (event) =>{
 // SESSION CONNECTION
 // ===============
 function getSession(){
-	var sessionId = JSON.parse(localStorage.getItem("sessionId"));
-	if(!sessionId){
+	var sessionId = document.cookie.split("=")[1].split("expires")[0];
+	if(sessionId === undefined || sessionId === "favicon.ico"){
 		const newSession = async (url, body) => {
 			const response = await fetch(url, {
 				method: "POST",
@@ -309,7 +309,7 @@ function getSession(){
 		roomNameGen().then((roomName) => {
 			newSession("https://mensa-sessions.herokuapp.com/sessions/new", { videoId: "undefined", roomName: roomName[0]})
 				.then(data => {
-					localStorage.setItem("sessionId", JSON.stringify(data.id));
+					writeCookie(data.id);
 					showID();
 				});
 			localStorage.setItem("roomName", JSON.stringify(roomName));
@@ -345,7 +345,7 @@ async function roomNameGen(){
 
 
 function updateSession(){
-	var sessionId = JSON.parse(localStorage.getItem("sessionId"));
+	var sessionId = document.cookie.split("=")[1].split("expires")[0];
 	const putSession = async (url, body) => {
 		const response = await fetch(url, {
 			method: "PUT",
@@ -368,12 +368,22 @@ function updateSession(){
 	putSession("https://mensa-sessions.herokuapp.com/sessions/edit", update);
 }
 
+
+// ===============
+// BROWSER FUNCTIONS
+// ===============
 window.onload = showID();
 
 function showID(){
-	var sessionId = JSON.parse(localStorage.getItem("sessionId"));
+	var sessionId = document.cookie.split("=")[1].split("expires")[0];
 	if(sessionId){
 		var text = document.querySelector(".sessionId")
 		text.innerHTML = "your session Id: " + sessionId;
 	}
+}
+
+function writeCookie(id){
+	var now = new Date()
+	now.setMonth(now.getMonth() + 2);
+	document.cookie = `sessionId=${id};expires=${now.toUTCString()};`;
 }
