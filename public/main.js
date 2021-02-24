@@ -2,7 +2,7 @@
 // PLAYER FUNCTIONS
 // ===============
 var tag = document.createElement('script');
-var socket = io();
+const socket = io();
 
 tag.src = "https://www.youtube.com/iframe_api";
 var firstScriptTag = document.getElementsByTagName('script')[0];
@@ -26,6 +26,7 @@ function onYouTubeIframeAPIReady() {
 }
 
 function onPlayerReady(){
+	whichAPIURL();
 	var videoURL = document.querySelector("#player").src;
 	var videoId = videoURL.split("embed/")[1].split("?")[0];
 	if(videoId === "dQw4w9WgXcQ") getSession();
@@ -129,12 +130,25 @@ function closeFullscreen() {
 	}
 }
 
+
 function initUI(){
 	var playb = document.querySelector(".play");
 	var pauseb = document.querySelector(".pause");
 	var submitb = document.querySelector(".submit-button");
 	var bar = document.querySelector(".progress");
 	var meter = document.querySelector(".volume-container");
+	var hamburger = document.querySelector(".hamburger");
+	var menu = document.querySelector(".menu");
+	var controls = document.querySelector(".controls");
+	var form = document.querySelector(".submit");
+	var video = document.querySelector(".player-wrapper");
+	var share = document.querySelector("#share");
+	var dmButton = document.querySelector("#dm");
+	var destroy = document.querySelector("#destroy");
+	var destroyMenu = document.querySelector(".destroy-valid-container");
+	var valid = document.querySelector(".valid");
+	var check =  document.querySelector(".far.fa-check-circle");
+	var cross = document.querySelector(".far.fa-times-circle");
 
 	playb.addEventListener("click", () => {
 		sendPlayEvent();
@@ -167,7 +181,82 @@ function initUI(){
 		player.setVolume(volume);
 		fill.style.width = String(volume) + "%"
 		saveSettings();
-	})	
+	})
+
+	hamburger.addEventListener("click", () => {
+		if(destroyMenu.classList.contains("appear")){
+			hamburger.classList.toggle("change");
+			destroyMenu.classList.toggle("appear");
+			video.classList.toggle("blur");
+			controls.classList.toggle("blur");
+			form.classList.toggle("blur");
+			return;
+		}
+		hamburger.classList.toggle("change");
+		menu.classList.toggle("appear");
+		video.classList.toggle("blur");
+		controls.classList.toggle("blur");
+		form.classList.toggle("blur");
+	})
+
+	share.addEventListener("click", () => {
+		var sessionId = document.cookie.split("=")[1].split("expires")[0];
+		var sessionLink = `https://js-mensa.herokuapp.com/session/${sessionId}`;
+		document.execCommand("copy");
+		document.addEventListener("copy", (event) =>{
+			event.clipboardData.setData("text/plain", sessionLink);
+			event.preventDefault();
+		})
+		share.classList.add("copied");
+		var temp = setInterval( () => {
+			share.classList.remove("copied");
+			clearInterval(temp);
+		}, 600 );
+	})
+
+	dmButton.addEventListener("click", () => {
+		var dmState = document.documentElement.dataset.theme
+		if(dmState === "light"){
+			transit();
+			document.documentElement.setAttribute("data-theme", "dark");
+			localStorage.setItem("dark", JSON.stringify(true))
+		} else{
+			transit();
+        	document.documentElement.setAttribute("data-theme", "light");
+			localStorage.setItem("dark", JSON.stringify(false))
+		}
+	})
+
+	destroy.addEventListener("click", () => {
+		menu.classList.toggle("appear");
+		destroyMenu.classList.toggle("appear");
+	})
+
+	valid.addEventListener("input", (event) => {
+		if(event.target.value === "ins nirvana damit"){
+			check.dataset.active = true;
+		} else{
+			check.dataset.active = false;
+		}
+	})
+
+	check.addEventListener("click", (event) => {
+		if(check.dataset.active === "true"){
+			destroySession();
+			valid.value = "";
+			hamburger.classList.toggle("change");
+			video.classList.toggle("blur");
+			controls.classList.toggle("blur");
+			form.classList.toggle("blur");
+			destroyMenu.classList.toggle("appear");
+		}
+	})
+
+	cross.addEventListener("click", () => {
+		menu.classList.toggle("appear");
+		destroyMenu.classList.toggle("appear");
+	})
+
 }
 initUI();
 
@@ -175,7 +264,6 @@ initUI();
 // ===============
 // SOCKET FUNCTIONS
 // ===============
-
 function sendPlayEvent(){
 	var videoURL = document.querySelector("#player").src;
 	var roomName = JSON.parse(localStorage.getItem("roomName"));
@@ -243,11 +331,16 @@ function joinRoom(data){
 	socket.emit("joinEvent", data.roomName);
 }
 
+function leaveRoom(data){
+	socket.emit("leaveEvent", data);
+}
+
 
 // ===============
 // KB SHORTCUTS
 // ===============
 document.addEventListener("keydown", (event) =>{
+	if(event.target.nodeName === "INPUT") return;
 	switch(event.code){
 		case "Space":
 			if(player.getPlayerState() === 2 || -1) sendPlayEvent();
@@ -288,8 +381,8 @@ document.addEventListener("keydown", (event) =>{
 // SESSION CONNECTION
 // ===============
 function getSession(){
-	var sessionId = document.cookie.split("=")[1].split("expires")[0];
-	if(sessionId === undefined || sessionId === "favicon.ico"){
+	var sessionId = (document.cookie.split("=")[1] || "").split("expires")[0];
+	if(!sessionId || sessionId === "favicon.ico"){
 		const newSession = async (url, body) => {
 			const response = await fetch(url, {
 				method: "POST",
@@ -306,10 +399,11 @@ function getSession(){
 		}
 
 		roomNameGen().then((roomName) => {
-			newSession("https://mensa-sessions.herokuapp.com/sessions/new", { videoId: "undefined", roomName: roomName[0]})
+			newSession(API_URL + "/new", { videoId: "undefined", roomName: roomName[0]})
 				.then(data => {
 					writeCookie(data.id);
-					showID();
+					joinRoom(data);
+					sendSubmitEvent(data);
 				});
 			localStorage.setItem("roomName", JSON.stringify(roomName));
 		})
@@ -328,17 +422,20 @@ function getSession(){
 			return response.json();
 		}
 
-		fetchSession(`https://mensa-sessions.herokuapp.com/sessions/last/${sessionId}`)
+		fetchSession(API_URL + `/last/${sessionId}`)
 			.then(data => {
 				localStorage.setItem("roomName", JSON.stringify(data.roomName));
 				joinRoom(data);
 				sendSubmitEvent(data);
+			}).catch(err => {
+				document.cookie = "sessionId=;";
+				getSession();
 			})
 	}
 }
 
 async function roomNameGen(){
-	const response = await fetch("https://random-word-api.herokuapp.com/word")
+	const response = await fetch("https://random-word-api.herokuapp.com/word");
 	return response.json();
 }
 
@@ -364,25 +461,65 @@ function updateSession(){
 	var videoId = videoURL.split("embed/")[1].split("?")[0];
 	var time = Math.floor(player.getCurrentTime());
 	update = { id: sessionId, videoId: videoId, time: time };
-	putSession("https://mensa-sessions.herokuapp.com/sessions/edit", update);
+	putSession(API_URL + "/edit", update);
+}
+
+function destroySession(){
+	var sessionId = document.cookie.split("=")[1].split("expires")[0];
+	const deleteSession = async (url) => {
+		const response = await fetch(url, {
+			method: "DELETE",
+			mode: "cors",
+			credentials: "omit",
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			redirect: "follow",
+			referrerPolicy: "no-referrer",
+		})
+		return response;
+	}
+	deleteSession(API_URL + `/destroy/${sessionId}`)
+		.then(data => {
+			var roomName = JSON.parse(localStorage.getItem("roomName"));
+			leaveRoom(roomName);
+			getSession();
+		}).catch(err =>{
+			document.cookie = "sessionId=;";
+			getSession();
+		});
 }
 
 
 // ===============
 // BROWSER FUNCTIONS
 // ===============
-window.onload = showID();
-
-function showID(){
-	var sessionId = document.cookie.split("=")[1].split("expires")[0];
-	if(sessionId){
-		var text = document.querySelector(".sessionId")
-		text.innerHTML = "your session Id: " + sessionId;
-	}
-}
-
 function writeCookie(id){
 	var now = new Date()
 	now.setMonth(now.getMonth() + 2);
 	document.cookie = `sessionId=${id};expires=${now.toUTCString()};`;
+}
+
+function transit(){
+    document.documentElement.classList.add("transition");
+    window.setTimeout(() => {
+        document.documentElement.classList.remove("transition");
+    }, 1000)
+}
+
+function getEnv(){
+    dmSetting = JSON.parse(localStorage.getItem("dark"));
+    if (dmSetting == true){
+        document.documentElement.setAttribute("data-theme", "dark");
+	}
+}
+getEnv();
+
+function whichAPIURL(){
+	var host = location.hostname;
+	if(host === "localhost"){
+		window.API_URL = "http://localhost:5000/sessions";
+	} else {
+		window.API_URL = "https://mensa-sessions.herokuapp.com/sessions";
+	}
 }

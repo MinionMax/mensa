@@ -4,7 +4,7 @@
   "description": "w2g.tv clone",
   "main": "main.js",
   "scripts": {
-    "test": "nodemon server.js"
+    "test": "concurrently \"cd ../mensa-sessions && npm run test\" \"nodemon server.js\""
   },
   "repository": {
     "type": "git",
@@ -20,5 +20,11 @@
     "cookie-parser": "^1.4.5",
     "express": "^4.17.1",
     "socket.io": "^3.1.0"
+  },
+  "nodemonConfig": {
+    "ext": "js, css, html, json"
+  },
+  "devDependencies": {
+    "concurrently": "^6.0.0"
   }
 }

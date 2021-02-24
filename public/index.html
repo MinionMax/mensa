@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,7 +12,9 @@
         <input type="text" name="video" class="URL" placeholder="Enter YouTube URL or Session ID here"> 
         <button type="button" class="submit-button">submit</button>
     </form>
-    <div id="player"></div>
+    <div class="player-wrapper">
+        <div id="player"></div>
+    </div>
     <div class="controls">
         <div class="play">    
             <i class="fas fa-play"></i>
@@ -27,7 +29,33 @@
         <div class="volume-container">
             <div class="meter"></div>
         </div>
-        <p class="sessionId"></p>
+    </div>
+    <nav class="menu">
+        <ul class="menu-li">
+            <li id="share" class="menu-item"><i class="fas fa-share-alt-square" style="color: var(--alttext);"></i>share session
+                <span class="done" aria-hidden="true">copied</span>
+            </li>
+            <li id="destroy" class="menu-item"><i class="fas fa-trash" style="color: var(--alttext);"></i>destroy session</li>
+            <li id="dm" class="menu-item"><i class="fas fa-adjust" style="color: var(--alttext);"></i>toggle dark mode</li>
+        </ul>
+    </nav>
+    <div class="destroy-valid-container">
+        <h1 class="sure">are you sure?</h1>
+        <p class="instruction">type <strong>"ins nirvana damit"</strong> to confirm</p>
+        <input type="text" name="video" class="valid" placeholder="ins nirvana damit">
+        <div class="yes-no">
+            <i class="far fa-check-circle"></i>
+            <i class="far fa-times-circle"></i>
+        </div>
+    </div>
+    <div class="hamburger-container">
+        <div class="hamburger-wrapper">
+            <div class="hamburger">
+                <div class="line line-1"></div>
+                <div class="line line-2"></div>
+                <div class="line line-3"></div>
+            </div>
+        </div>
     </div>
     <script src="/socket.io/socket.io.js"></script>
     <script src="main.js"></script>

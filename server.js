@@ -25,6 +25,11 @@ io.on("connection", (socket) => {
         console.log("user joined the room: " + data);
     });
 
+    socket.on("leaveEvent", (data) => {
+        socket.leave(data);
+        console.log("user left the room: " + data);
+    })
+
     socket.on("playerEvent", (data) => {
         io.to(data.room).emit("playerEvent", data);
         console.log(data);
