@@ -1,28 +1,28 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
 
 *{
-    font-family: "roboto mono";
+	font-family: "roboto mono";
 }
 
 html{
-    --accent: #407294;
-    --text: black;
-    --alttext: white;
-    --bg: #fff;
+	--accent: #407294;
+	--text: black;
+	--alttext: white;
+	--bg: #fff;
 }
 
 html[data-theme="dark"]{
-    --accent: #423896;
-    --text: #333333;
-    --alttext: #fff;
-    --bg: rgb(17, 17, 17); 
+	--accent: #423896;
+	--text: #333333;
+	--alttext: #fff;
+	--bg: rgb(17, 17, 17); 
 }
 
 body{
    display: flex;
    justify-content: center;
    flex-direction: column;
-    background-color: var(--bg);
+	background-color: var(--bg);
 }
 
 html.transition,
@@ -35,269 +35,352 @@ html.transition *:after {
 
 
 .submit{
-    padding: 0.25rem;
-    display: flex;
-    height: 3rem;
-    box-sizing: border-box;
-    width: 500px;
-    align-self: center;
-    display: flex;
-    border-color: var(--text);
-    border-style: solid;
-    border-radius: 6px;
+	padding: 0.25rem;
+	display: flex;
+	height: 3rem;
+	box-sizing: border-box;
+	width: 500px;
+	align-self: center;
+	display: flex;
+	border-color: var(--text);
+	border-style: solid;
+	border-radius: 6px;
+	margin-bottom: 10px;
 }
 
 .submit-button{
-    background-color: var(--accent);
-    color: var(--alttext);
-    outline: none;
-    border: none;
-    cursor: pointer;
+	background-color: var(--accent);
+	color: var(--alttext);
+	outline: none;
+	border: none;
+	cursor: pointer;
 }
 
 .URL{
-    border: none;
-    padding: 0 1rem;
-    flex-grow: 1;
-    border-radius: 2rem;
-    margin: 0.25rem;
+	border: none;
+	padding: 0 1rem;
+	flex-grow: 1;
+	border-radius: 2rem;
+	margin: 0.25rem;
+}
+
+.state-wrapper{
+	display: flex;
+	justify-content: center;
+	visibility: hidden;
+	transition: visibility 250ms, opacity 250ms;
+	opacity: 0;
+}
+
+.state-wrapper[data-active=true]{
+	visibility: visible;
+	opacity: 1;
+}
+
+.loader {
+	display: inline-block;
+	width: 10px;
+	height: 10px;
+	position: relative;
+	border: 4px solid var(--accent);
+	top: 50%;
+	animation: loader 2s infinite ease;
+	align-self: center;
+}
+
+.state{
+	font-size: 10px;
+	margin-left: 10px;
+	color: var(--alttext)
+}
+  
+.loader-inner {
+	vertical-align: top;
+	display: inline-block;
+	width: 100%;
+	background-color: var(--accent);
+	animation: loader-inner 2s infinite ease-in;
+}
+  
+@keyframes loader {
+	0% {
+		transform: rotate(0deg);
+	}
+
+	25% {
+		transform: rotate(180deg);
+	}
+
+	50% {
+		transform: rotate(180deg);
+	}
+
+	75% {
+		transform: rotate(360deg);
+	}
+
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+@keyframes loader-inner {
+	0% {
+		height: 0%;
+	}
+
+	25% {
+		height: 0%;
+	}
+
+	50% {
+		height: 100%;
+	}
+
+	75% {
+		height: 100%;
+	}
+
+	100% {
+		height: 0%;
+	}
 }
 
 .player-wrapper{
-    align-self: center;
-    margin-top: 50px;
+	align-self: center;
+	margin-top: 50px;
 }
 
 .controls{
-    display: flex;
-    justify-content: center;
-    flex-direction: row;
-    align-items: center;
+	display: flex;
+	justify-content: center;
+	flex-direction: row;
+	align-items: center;
 }
 
 .progress{
-    background-color: var(--text);
-    width: 400px;
-    height: 4px;
-    margin-top: 20px;
-    margin-left: 10px;
-    margin-right: 8px;
-    cursor: pointer;
+	background-color: var(--text);
+	width: 400px;
+	height: 4px;
+	margin-top: 20px;
+	margin-left: 10px;
+	margin-right: 8px;
+	cursor: pointer;
 }
 
 .cursor{
-    width: 10px;
-    height: 10px;
-    bottom: 6px;
-    position: relative;
-    border-style: solid;
-    align-self: center;
-    transition: 200ms;
-    color: var(--text);
+	width: 10px;
+	height: 10px;
+	bottom: 6px;
+	position: relative;
+	border-style: solid;
+	align-self: center;
+	transition: 200ms;
+	color: var(--text);
 }
 
 .fas{
-    align-self: center;
-    margin-right: 5px;
-    margin-top: 20px;
-    cursor: pointer;
-    color: var(--text)
+	align-self: center;
+	margin-right: 5px;
+	margin-top: 20px;
+	cursor: pointer;
+	color: var(--text)
 }
 
 .sessionId{
-    position: absolute;
-    left: 0;
-    top: 100%;
-    font-size: small;
+	position: absolute;
+	left: 0;
+	top: 100%;
+	font-size: small;
 }
 
 .volume-container{
-    height: 10px;
-    border-style: solid;
-    width: 50px;
-    margin-top: 18px;
-    margin-left: 2px;
-    cursor: pointer;
-    color: var(--text)
+	height: 10px;
+	border-style: solid;
+	width: 50px;
+	margin-top: 18px;
+	margin-left: 2px;
+	cursor: pointer;
+	color: var(--text)
 }
 
 .meter{
-    height: 100%;
-    background-color: var(--accent);
-    transition: 500ms;
+	height: 100%;
+	background-color: var(--accent);
+	transition: 500ms;
 }
 
 .hamburger-container{
-    display: flex;
-    justify-content: center;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
+	display: flex;
+	justify-content: center;
+	position: fixed;
+	bottom: 0;
+	width: 100%;
 }
 
 .hamburger{
-    width: 30px;
-    height: 30px;
-    margin-left: 3px;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    z-index: 5;
+	width: 30px;
+	height: 30px;
+	margin-left: 3px;
+	cursor: pointer;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-around;
+	z-index: 5;
 }
 
 .hamburger-wrapper{
-    background-color: var(--accent);
-    width: 90px;
-    display: flex;
-    justify-content: center;
-    border-top-left-radius: 40px;
-    border-top-right-radius: 40px;
+	background-color: var(--accent);
+	width: 90px;
+	display: flex;
+	justify-content: center;
+	border-top-left-radius: 40px;
+	border-top-right-radius: 40px;
 }
 
 .line{
-    width: 100%;
-    height: 3px;
-    background-color: var(--alttext);
-    transition: all 250ms;
+	width: 100%;
+	height: 3px;
+	background-color: var(--alttext);
+	transition: all 250ms;
 }
 
 .change .line-1{
-    transform: rotateZ(-45deg) translate(-8px, 6px);
+	transform: rotateZ(-45deg) translate(-8px, 6px);
 }
 
 .change .line-2{
-    opacity: 0;
+	opacity: 0;
 }
 
 .change .line-3{
-    transform: rotateZ(45deg) translate(-8px, -6px);
+	transform: rotateZ(45deg) translate(-8px, -6px);
 }
 
 .menu{
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 400px;
-    height: 150px;
-    border-radius: 10px;
-    transform: translate(-50%, -50%);
-    opacity: 0;
-    transition: 250ms;
-    transition-property: opacity;
-    z-index: -1;
-    background-color: var(--accent);
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 400px;
+	height: 150px;
+	border-radius: 10px;
+	transform: translate(-50%, -50%);
+	opacity: 0;
+	transition: 250ms;
+	transition-property: opacity;
+	z-index: -1;
+	background-color: var(--accent);
 }
 
 .menu-li{
-    list-style-type: none;
-    padding: 0;
-    display: flex;
-    justify-content: space-evenly;
-    flex-direction: column;
-    text-align: center;
+	list-style-type: none;
+	padding: 0;
+	display: flex;
+	justify-content: space-evenly;
+	flex-direction: column;
+	text-align: center;
 }
 
 .menu-item{
-    color: var(--alttext);
-    cursor: pointer;
-    transition: 400ms;
+	color: var(--alttext);
+	cursor: pointer;
+	transition: 400ms;
 }
 
 .menu-item:hover{
-    font-size: 20px;
+	font-size: 20px;
 }
 
 .appear{
-    opacity: 1;
-    z-index: 2;
-    transition: 250ms;
-    transition-property: opacity;
+	opacity: 1;
+	z-index: 2;
+	transition: 250ms;
+	transition-property: opacity;
 }
 
 .blur{
-    filter: blur(4px);
-    transition: all 250ms;
+	filter: blur(4px);
+	transition: all 250ms;
 }
 
 .done{
-    position: absolute;
-    left: 0; top: 0; right: 0;
-    text-align: center;
-    opacity: 0;
-    transform: translateY(-1em);
-    color: #000;
-    transition: all .500s;
+	position: absolute;
+	left: 0; top: 0; right: 0;
+	text-align: center;
+	opacity: 0;
+	transform: translateY(-1em);
+	color: #000;
+	transition: all .500s;
 }
 
 .copied .done {
-    opacity: 1;
-    transform: translateY(-0.25em);
-    color: var(--alttext);
+	opacity: 1;
+	transform: translateY(-0.25em);
+	color: var(--alttext);
 }
 
 .destroy-valid-container{
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 400px;
-    height: 150px;
-    border-radius: 10px;
-    transform: translate(-50%, -50%);
-    opacity: 0;
-    transition: 250ms;
-    transition-property: opacity;
-    z-index: -1;
-    background-color: var(--accent);
-    text-align: center;
-    display: flex;
-    justify-content: space-evenly;
-    align-content: center;
-    flex-direction: column;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 400px;
+	height: 150px;
+	border-radius: 10px;
+	transform: translate(-50%, -50%);
+	opacity: 0;
+	transition: 250ms;
+	transition-property: opacity;
+	z-index: -1;
+	background-color: var(--accent);
+	text-align: center;
+	display: flex;
+	justify-content: space-evenly;
+	align-content: center;
+	flex-direction: column;
 }
 
 .destroy-valid-container.appear{
-    opacity: 1;
-    z-index: 2;
-    transition: 250ms;
-    transition-property: opacity;
+	opacity: 1;
+	z-index: 2;
+	transition: 250ms;
+	transition-property: opacity;
 }
 
 .sure{
-    color: var(--alttext);
-    margin-bottom: 8px;
-    margin-top: 0;
+	color: var(--alttext);
+	margin-bottom: 8px;
+	margin-top: 0;
 }
 
 .valid{
-    width: 40%;
-    height: 15%;
-    border-radius: 6px;
-    border: none;
-    align-self: center;
+	width: 40%;
+	height: 15%;
+	border-radius: 6px;
+	border: none;
+	align-self: center;
 }
 
 .far.fa-check-circle{
-    font-size: 30px;
-    color: rgb(170, 170, 170);
-    cursor: pointer;
-    transition: 250ms;
+	font-size: 30px;
+	color: rgb(170, 170, 170);
+	cursor: pointer;
+	transition: 250ms;
 }
 
 
 .far.fa-check-circle[data-active=true]{
-    font-size: 30px;
-    color: rgb(66, 243, 66);
-    cursor: pointer;
+	font-size: 30px;
+	color: rgb(66, 243, 66);
+	cursor: pointer;
 }
 
 .far.fa-times-circle{
-    font-size: 30px;
-    color: rgb(255, 98, 98);
-    cursor: pointer;
+	font-size: 30px;
+	color: rgb(255, 98, 98);
+	cursor: pointer;
 }
 
 .instruction{
-    color: var(--alttext);
-    margin: 0;
+	color: var(--alttext);
+	margin: 0;
 }

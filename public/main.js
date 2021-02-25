@@ -283,6 +283,10 @@ function sendPauseEvent(){
 
 function sendSubmitEvent(data){
 	var roomName = JSON.parse(localStorage.getItem("roomName"));
+	var state = document.querySelector(".state");
+	var stateDisplay = document.querySelector(".state-wrapper");
+	state.innerHTML = "submitting video...";
+	stateDisplay.dataset.active = "true";
 	if(data){
 		submitedData = { videoId: data.videoId, time: data.time, room: roomName };
 		socket.emit("submitEvent", submitedData);
@@ -318,6 +322,8 @@ socket.on("playerEvent", (data) => {
 })
 
 socket.on("loadEvent", (data) => {
+	var stateDisplay = document.querySelector(".state-wrapper");
+	stateDisplay.dataset.active = "false";
 	var video = document.querySelector("#player");
 	if(data.time){
 		video.src = `https://www.youtube.com/embed/${data.videoId}?controls=0&disablekb=1&modestbranding=1&enablejsapi=1&start=${data.time}`;
@@ -399,16 +405,19 @@ function getSession(){
 		}
 
 		roomNameGen().then((roomName) => {
+			changeState("creating session", true);
 			newSession(API_URL + "/new", { videoId: "undefined", roomName: roomName[0]})
 				.then(data => {
 					writeCookie(data.id);
 					joinRoom(data);
 					sendSubmitEvent(data);
+					changeState("creating session", false);
 				});
 			localStorage.setItem("roomName", JSON.stringify(roomName));
 		})
 	} else {
 		const fetchSession = async (url) => {
+			changeState("fetching session", true)
 			const response = await fetch(url, {
 				method: "GET",
 				mode: "cors",
@@ -424,10 +433,12 @@ function getSession(){
 
 		fetchSession(API_URL + `/last/${sessionId}`)
 			.then(data => {
+				changeState("fetching session", false)
 				localStorage.setItem("roomName", JSON.stringify(data.roomName));
 				joinRoom(data);
 				sendSubmitEvent(data);
 			}).catch(err => {
+				changeState("failed fetching session", true)
 				document.cookie = "sessionId=;";
 				getSession();
 			})
@@ -438,7 +449,6 @@ async function roomNameGen(){
 	const response = await fetch("https://random-word-api.herokuapp.com/word");
 	return response.json();
 }
-
 
 function updateSession(){
 	var sessionId = document.cookie.split("=")[1].split("expires")[0];
@@ -467,6 +477,7 @@ function updateSession(){
 function destroySession(){
 	var sessionId = document.cookie.split("=")[1].split("expires")[0];
 	const deleteSession = async (url) => {
+		changeState("destroying session", true);
 		const response = await fetch(url, {
 			method: "DELETE",
 			mode: "cors",
@@ -481,6 +492,7 @@ function destroySession(){
 	}
 	deleteSession(API_URL + `/destroy/${sessionId}`)
 		.then(data => {
+			changeState("destroying session", false);
 			var roomName = JSON.parse(localStorage.getItem("roomName"));
 			leaveRoom(roomName);
 			getSession();
@@ -522,4 +534,12 @@ function whichAPIURL(){
 	} else {
 		window.API_URL = "https://mensa-sessions.herokuapp.com/sessions";
 	}
+}
+
+function changeState(event, visibility){
+	var state = document.querySelector(".state");
+	var stateDisplay = document.querySelector(".state-wrapper");
+
+	state.innerHTML = `${event}...`
+	stateDisplay.dataset.active = String(visibility);
 }
