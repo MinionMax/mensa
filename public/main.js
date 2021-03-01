@@ -215,16 +215,7 @@ function initUI(){
 	})
 
 	dmButton.addEventListener("click", () => {
-		var dmState = document.documentElement.dataset.theme
-		if(dmState === "light"){
-			transit();
-			document.documentElement.setAttribute("data-theme", "dark");
-			localStorage.setItem("dark", JSON.stringify(true))
-		} else{
-			transit();
-        	document.documentElement.setAttribute("data-theme", "light");
-			localStorage.setItem("dark", JSON.stringify(false))
-		}
+		changeTheme();
 	})
 
 	destroy.addEventListener("click", () => {
@@ -282,11 +273,9 @@ function sendPauseEvent(){
 }
 
 function sendSubmitEvent(data){
+	console.log("!")
 	var roomName = JSON.parse(localStorage.getItem("roomName"));
-	var state = document.querySelector(".state");
-	var stateDisplay = document.querySelector(".state-wrapper");
-	state.innerHTML = "submitting video...";
-	stateDisplay.dataset.active = "true";
+	changeState("submitting video", true);
 	if(data){
 		submitedData = { videoId: data.videoId, time: data.time, room: roomName };
 		socket.emit("submitEvent", submitedData);
@@ -322,8 +311,7 @@ socket.on("playerEvent", (data) => {
 })
 
 socket.on("loadEvent", (data) => {
-	var stateDisplay = document.querySelector(".state-wrapper");
-	stateDisplay.dataset.active = "false";
+	changeState("submitting video", false);
 	var video = document.querySelector("#player");
 	if(data.time){
 		video.src = `https://www.youtube.com/embed/${data.videoId}?controls=0&disablekb=1&modestbranding=1&enablejsapi=1&start=${data.time}`;
@@ -417,7 +405,7 @@ function getSession(){
 		})
 	} else {
 		const fetchSession = async (url) => {
-			changeState("fetching session", true)
+			changeState("fetching session", true);
 			const response = await fetch(url, {
 				method: "GET",
 				mode: "cors",
@@ -519,10 +507,37 @@ function transit(){
     }, 1000)
 }
 
+function changeTheme(){
+	var dmState = document.documentElement.dataset.theme
+	if(dmState === "light"){
+		transit();
+		document.documentElement.setAttribute("data-theme", "dark");
+		localStorage.setItem("dark", JSON.stringify(true))
+	} else{
+		transit();
+		document.documentElement.setAttribute("data-theme", "light");
+		localStorage.setItem("dark", JSON.stringify(false))
+	}
+}
+
 function getEnv(){
+	const dmMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+	if(dmMediaQuery.matches) localStorage.setItem("dark", JSON.stringify(true));
+
+	dmMediaQuery.addEventListener("change", (event) =>{
+		if(event.matches){
+			localStorage.setItem("dark", JSON.stringify(true))
+			console.log("detected dark mode");
+		} else{
+			localStorage.setItem("dark", JSON.stringify(false))
+		}
+		changeTheme();
+	})
+
     dmSetting = JSON.parse(localStorage.getItem("dark"));
     if (dmSetting == true){
         document.documentElement.setAttribute("data-theme", "dark");
+		changeTheme();
 	}
 }
 getEnv();

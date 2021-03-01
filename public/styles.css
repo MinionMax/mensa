@@ -4,10 +4,32 @@
 	font-family: "roboto mono";
 }
 
+
+@media (prefers-color-scheme: light){
+	html{
+		--accent: #407294;
+		--text: black;
+		--alttext: white;
+		--statetext: black;
+		--bg: #fff;
+	}
+}
+
+@media (prefers-color-scheme: dark){
+	html[data-theme="dark"]{
+		--accent: #423896;
+		--text: #333333;
+		--alttext: #fff;
+		--statetext: white;
+		--bg: rgb(17, 17, 17); 
+	}
+}
+
 html{
 	--accent: #407294;
 	--text: black;
 	--alttext: white;
+	--statetext: black;
 	--bg: #fff;
 }
 
@@ -15,6 +37,7 @@ html[data-theme="dark"]{
 	--accent: #423896;
 	--text: #333333;
 	--alttext: #fff;
+	--statetext: white;
 	--bg: rgb(17, 17, 17); 
 }
 
@@ -91,7 +114,7 @@ html.transition *:after {
 .state{
 	font-size: 10px;
 	margin-left: 10px;
-	color: var(--alttext)
+	color: var(--statetext)
 }
   
 .loader-inner {
@@ -384,3 +407,4 @@ html.transition *:after {
 	color: var(--alttext);
 	margin: 0;
 }
+
