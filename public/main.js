@@ -36,6 +36,7 @@ function onPlayerReady(){
 }
 
 
+
 // ===============
 // UI FUNTIONS
 // ===============
@@ -273,9 +274,9 @@ function sendPauseEvent(){
 }
 
 function sendSubmitEvent(data){
-	console.log("!")
 	var roomName = JSON.parse(localStorage.getItem("roomName"));
 	changeState("submitting video", true);
+
 	if(data){
 		submitedData = { videoId: data.videoId, time: data.time, room: roomName };
 		socket.emit("submitEvent", submitedData);
@@ -283,17 +284,18 @@ function sendSubmitEvent(data){
 		var input = document.querySelector(".URL").value;
 		if(input.length === 43){
 			var id = input.split("watch?v=")[1];
+		} else if(input.includes("&") && input.includes("watch?v=")){
+			var id = input.split("watch?v=")[1].split("&")[0];
 		} else if(input.length === 28){
 			var id = input.split(".be/")[1];
-		} else if(!input.includes("https://") && input.length === 36){
-			writeCookie(input);
-			getSession();
-			showID();
-			document.querySelector(".URL").value = "";
-			return;
 		} else if(input.includes("https://") && input.length > 43){
 			var id = input.split("watch?v=")[1].split("?")[0];
+		} else if(input.includes("playlist")){
+			var list = input.split("list=")[1]
+			console.log(list)
+			return
 		}
+
 		submitedData = { videoId: id, room: roomName };
 		socket.emit("submitEvent", submitedData);
 		document.querySelector(".URL").value = "";
@@ -478,6 +480,7 @@ function destroySession(){
 		})
 		return response;
 	}
+
 	deleteSession(API_URL + `/destroy/${sessionId}`)
 		.then(data => {
 			changeState("destroying session", false);
@@ -489,6 +492,7 @@ function destroySession(){
 			getSession();
 		});
 }
+
 
 
 // ===============
@@ -512,33 +516,30 @@ function changeTheme(){
 	if(dmState === "light"){
 		transit();
 		document.documentElement.setAttribute("data-theme", "dark");
-		localStorage.setItem("dark", JSON.stringify(true))
+		localStorage.setItem("dark", JSON.stringify(true));
 	} else{
 		transit();
 		document.documentElement.setAttribute("data-theme", "light");
-		localStorage.setItem("dark", JSON.stringify(false))
+		localStorage.setItem("dark", JSON.stringify(false));
 	}
 }
 
 function getEnv(){
-	const dmMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+	var prevDmSetting = JSON.parse(localStorage.getItem("dark"));
+	if(prevDmSetting === true){
+		changeTheme();
+	}
+
+	var dmMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 	if(dmMediaQuery.matches) localStorage.setItem("dark", JSON.stringify(true));
 
 	dmMediaQuery.addEventListener("change", (event) =>{
 		if(event.matches){
-			localStorage.setItem("dark", JSON.stringify(true))
-			console.log("detected dark mode");
+			changeTheme();
 		} else{
-			localStorage.setItem("dark", JSON.stringify(false))
+			changeTheme();
 		}
-		changeTheme();
 	})
-
-    dmSetting = JSON.parse(localStorage.getItem("dark"));
-    if (dmSetting == true){
-        document.documentElement.setAttribute("data-theme", "dark");
-		changeTheme();
-	}
 }
 getEnv();
 

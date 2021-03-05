@@ -172,6 +172,11 @@ html.transition *:after {
 .player-wrapper{
 	align-self: center;
 	margin-top: 50px;
+	cursor: not-allowed;
+}
+
+#player{
+	pointer-events: none;
 }
 
 .controls{
