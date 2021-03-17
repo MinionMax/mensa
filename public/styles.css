@@ -178,6 +178,7 @@ html.transition *:after {
 }
 
 .controls{
+	margin-top: 15px;
 	display: flex;
 	justify-content: center;
 	flex-direction: row;
@@ -188,10 +189,24 @@ html.transition *:after {
 	background-color: var(--text);
 	width: 400px;
 	height: 4px;
-	margin-top: 20px;
+	align-self: center;
 	margin-left: 10px;
 	margin-right: 8px;
 	cursor: pointer;
+}
+
+.timer{
+	background-color: var(--text);
+	color: var(--alttext);
+	font-size: 12px;
+	height: fit-content;
+	width: fit-content;
+	width: -moz-fit-content;
+	visibility: hidden;
+}
+
+.timer[data-active=true]{
+	visibility: visible;
 }
 
 .cursor{
@@ -205,10 +220,16 @@ html.transition *:after {
 	color: var(--text);
 }
 
-.fas{
+.play{
 	align-self: center;
+}
+
+.pause{
+	align-self: center;
+}
+
+.fas{
 	margin-right: 5px;
-	margin-top: 20px;
 	cursor: pointer;
 	color: var(--text)
 }
@@ -224,7 +245,7 @@ html.transition *:after {
 	height: 10px;
 	border-style: solid;
 	width: 50px;
-	margin-top: 18px;
+	align-self: center;
 	margin-left: 2px;
 	cursor: pointer;
 	color: var(--text)
