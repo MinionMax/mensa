@@ -42,12 +42,13 @@ function onPlayerReady(){
 // ===============
 function progressLoop(){
 	var cursor = document.querySelector(".cursor");
-	var fraction = player.getCurrentTime()/player.getDuration()*100;
-	cursor.style.left = fraction.toString() + "%";
+	var barWidth = document.querySelector(".progress").offsetWidth;
+	var cursorFraction = (cursor.offsetWidth/barWidth)*100;
+	var fraction = player.getCurrentTime()/player.getDuration()*(100 - cursorFraction);
+	cursor.style.left = fraction + "%";
 }
 
-var interval = null
-var interval2 = null
+
 function playVideo(data){
 	var embedCode = document.querySelector("#player").src;
 	var soughtTo = JSON.parse(localStorage.getItem("soughtTo"));
@@ -59,8 +60,7 @@ function playVideo(data){
 		player.seekTo(Number(startCode));
 		localStorage.setItem("soughtTo", JSON.stringify(true));
 	}
-	interval = setInterval(progressLoop, 200);
-	interval2 = setInterval(updateSession, 60000);
+	handleLoop(true);
 	player.playVideo();
 	setMeter();
 	if(soughtTo){
@@ -69,9 +69,20 @@ function playVideo(data){
 }
 
 function pauseVideo(){
-	if(interval) clearInterval(interval);
-	if(interval2) clearInterval(interval2);
+	handleLoop(false);
 	player.pauseVideo();
+}
+
+function handleLoop(state){
+	var interval = null;
+	var interval2 = null;
+	if(state){
+		interval = setInterval(progressLoop, 200);
+		interval2 = setInterval(updateSession, 60000);
+	} else{
+		clearInterval(interval);
+		clearInterval(interval2);
+	}
 }
 
 function volumeUp(){
@@ -169,7 +180,8 @@ function initUI(){
 	bar.addEventListener("click", (event) => {
 		var duration = player.getDuration();
 		var offset = bar.offsetLeft;
-		var seekTo = (event.clientX - offset)/400*duration;
+		var barWidth = bar.offsetWidth;
+		var seekTo = (event.clientX - offset)/barWidth*duration;
 		var roomName = JSON.parse(localStorage.getItem("roomName"));
 		currData = { playerStatus: "play", time: seekTo, room: roomName };
 		socket.emit("playerEvent", currData);
@@ -203,11 +215,11 @@ function initUI(){
 	share.addEventListener("click", () => {
 		var sessionId = document.cookie.split("=")[1].split("expires")[0];
 		var sessionLink = `https://js-mensa.herokuapp.com/session/${sessionId}`;
-		document.execCommand("copy");
 		document.addEventListener("copy", (event) =>{
 			event.clipboardData.setData("text/plain", sessionLink);
 			event.preventDefault();
 		})
+		document.execCommand("copy");
 		share.classList.add("copied");
 		var temp = setInterval( () => {
 			share.classList.remove("copied");
@@ -225,7 +237,8 @@ function initUI(){
 	})
 
 	valid.addEventListener("input", (event) => {
-		if(event.target.value === "ins nirvana damit"){
+		var input = event.target.value.toLowerCase().trim()
+		if(input === "ins nirvana damit"){
 			check.dataset.active = true;
 		} else{
 			check.dataset.active = false;
@@ -275,30 +288,33 @@ function sendPauseEvent(){
 
 function sendSubmitEvent(data){
 	var roomName = JSON.parse(localStorage.getItem("roomName"));
+	var input = document.querySelector(".URL").value;
 	changeState("submitting video", true);
 
 	if(data){
 		submitedData = { videoId: data.videoId, time: data.time, room: roomName };
 		socket.emit("submitEvent", submitedData);
+		input.value = "";
+		return;
 	} else {
-		var input = document.querySelector(".URL").value;
 		if(input.length === 43){
 			var id = input.split("watch?v=")[1];
-		} else if(input.includes("&") && input.includes("watch?v=")){
+		} else if(input.includes("&t=") && input.includes("watch?v=")){
 			var id = input.split("watch?v=")[1].split("&")[0];
+			var time = input.split("&t=")[1];
+			submitedData = { videoId: id, time: time, room: roomName };
+			socket.emit("submitEvent", submitedData);
+			input.value = "";
+			return;
 		} else if(input.length === 28){
 			var id = input.split(".be/")[1];
 		} else if(input.includes("https://") && input.length > 43){
 			var id = input.split("watch?v=")[1].split("?")[0];
-		} else if(input.includes("playlist")){
-			var list = input.split("list=")[1]
-			console.log(list)
-			return
 		}
 
 		submitedData = { videoId: id, room: roomName };
 		socket.emit("submitEvent", submitedData);
-		document.querySelector(".URL").value = "";
+		input.value = "";
 	}
 }
 
@@ -359,6 +375,7 @@ document.addEventListener("keydown", (event) =>{
 		break;
 		case "ArrowRight":
 			plusFiveSec();
+		break;
 		case "KeyM":
 			var meter = document.querySelector(".meter")
 			if(player.isMuted()){
@@ -454,7 +471,7 @@ function updateSession(){
 			referrerPolicy: "no-referrer",
 			body: JSON.stringify(body)
 		});
-		return response.json();
+		return response;
 	}
 
 	var videoURL = document.querySelector("#player").src;
