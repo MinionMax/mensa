@@ -48,6 +48,16 @@ function progressLoop(){
 	cursor.style.left = fraction + "%";
 }
 
+function timeLoop(){
+	var currTime = player.getCurrentTime();
+	var duration = player.getDuration();
+	var display = document.querySelector(".timer");
+
+	var finalCurrTime = format(currTime);
+	var finalDuration = format(duration);
+
+	display.innerHTML = `${finalCurrTime}/${finalDuration}`;
+}
 
 function playVideo(data){
 	var embedCode = document.querySelector("#player").src;
@@ -76,12 +86,15 @@ function pauseVideo(){
 function handleLoop(state){
 	var interval = null;
 	var interval2 = null;
+	var interval3 = null
 	if(state){
 		interval = setInterval(progressLoop, 200);
 		interval2 = setInterval(updateSession, 60000);
+		interval3 = setInterval(timeLoop, 1000);
 	} else{
 		clearInterval(interval);
 		clearInterval(interval2);
+		clearInterval(interval3);
 	}
 }
 
@@ -148,6 +161,7 @@ function initUI(){
 	var pauseb = document.querySelector(".pause");
 	var submitb = document.querySelector(".submit-button");
 	var bar = document.querySelector(".progress");
+	var cursor = document.querySelector(".cursor");
 	var meter = document.querySelector(".volume-container");
 	var hamburger = document.querySelector(".hamburger");
 	var menu = document.querySelector(".menu");
@@ -183,14 +197,26 @@ function initUI(){
 		var barWidth = bar.offsetWidth;
 		var seekTo = (event.clientX - offset)/barWidth*duration;
 		var roomName = JSON.parse(localStorage.getItem("roomName"));
+
 		currData = { playerStatus: "play", time: seekTo, room: roomName };
 		socket.emit("playerEvent", currData);
 	})
+
+	cursor.addEventListener("mouseover", () => {
+		var display = document.querySelector(".timer");
+		display.dataset.active = true;
+	})
+
+	cursor.addEventListener("mouseleave", () => {
+		var display = document.querySelector(".timer");
+		display.dataset.active = false;
+	})	
 
 	meter.addEventListener("click", (event) => {
 		var offset = meter.offsetLeft;
 		var fill = document.querySelector(".meter")
 		var volume = Math.floor((event.clientX - offset)/50*100);
+
 		player.setVolume(volume);
 		fill.style.width = String(volume) + "%"
 		saveSettings();
@@ -294,7 +320,7 @@ function sendSubmitEvent(data){
 	if(data){
 		submitedData = { videoId: data.videoId, time: data.time, room: roomName };
 		socket.emit("submitEvent", submitedData);
-		input.value = "";
+		input = "";
 		return;
 	} else {
 		if(input.length === 43){
@@ -304,7 +330,7 @@ function sendSubmitEvent(data){
 			var time = input.split("&t=")[1];
 			submitedData = { videoId: id, time: time, room: roomName };
 			socket.emit("submitEvent", submitedData);
-			input.value = "";
+			input = "";
 			return;
 		} else if(input.length === 28){
 			var id = input.split(".be/")[1];
@@ -314,7 +340,7 @@ function sendSubmitEvent(data){
 
 		submitedData = { videoId: id, room: roomName };
 		socket.emit("submitEvent", submitedData);
-		input.value = "";
+		input = "";
 	}
 }
 
@@ -575,4 +601,20 @@ function changeState(event, visibility){
 
 	state.innerHTML = `${event}...`
 	stateDisplay.dataset.active = String(visibility);
+}
+
+function format(time) {   
+    // Hours, minutes and seconds
+    var hrs = ~~(time / 3600);
+    var mins = ~~((time % 3600) / 60);
+    var secs = ~~time % 60;
+
+    // Output like "1:01" or "4:03:59" or "123:03:59"
+    var ret = "";
+    if (hrs > 0) {
+        ret += "" + hrs + ":" + (mins < 10 ? "0" : "");
+    }
+    ret += "" + mins + ":" + (secs < 10 ? "0" : "");
+    ret += "" + secs;
+    return ret;
 }

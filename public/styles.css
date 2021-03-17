@@ -201,12 +201,20 @@ html.transition *:after {
 	font-size: 12px;
 	height: fit-content;
 	width: fit-content;
+	height: -moz-fit-content;
 	width: -moz-fit-content;
 	visibility: hidden;
+	opacity: 0;
+	transition: visibility 250ms, opacity 250ms;
+	position: absolute;
+	top: 150%;
+	padding: 0.5em;
+	border-radius: 5px;
 }
 
 .timer[data-active=true]{
 	visibility: visible;
+	opacity: 0.6;
 }
 
 .cursor{
@@ -218,6 +226,8 @@ html.transition *:after {
 	align-self: center;
 	transition: 200ms;
 	color: var(--text);
+	display: flex;
+	justify-content: center;
 }
 
 .play{
