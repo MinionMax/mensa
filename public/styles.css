@@ -317,6 +317,8 @@ html.transition *:after {
 	transition-property: opacity;
 	z-index: -1;
 	background-color: var(--accent);
+	display: flex;
+	justify-content: center;
 }
 
 .menu-li{
