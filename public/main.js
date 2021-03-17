@@ -53,8 +53,8 @@ function timeLoop(){
 	var duration = player.getDuration();
 	var display = document.querySelector(".timer");
 
-	var finalCurrTime = format(currTime);
-	var finalDuration = format(duration);
+	var finalCurrTime = formatTimeString(currTime);
+	var finalDuration = formatTimeString(duration);
 
 	display.innerHTML = `${finalCurrTime}/${finalDuration}`;
 }
@@ -315,12 +315,25 @@ function sendPauseEvent(){
 function sendSubmitEvent(data){
 	var roomName = JSON.parse(localStorage.getItem("roomName"));
 	var input = document.querySelector(".URL").value;
+
+	if(!input.includes("youtu.be") && !input.includes("youtube.com") && !data){
+		var inputElem = document.querySelector(".URL");
+		inputElem.dataset.error = true;
+		inputElem.value = "PLEASE ENTER A VALID YOUTUBE URL";
+		var temp = setInterval( () => {
+			inputElem.dataset.error = false;
+			inputElem.value = ""
+			clearInterval(temp);
+		}, 800 );
+		return;
+	}
+
 	changeState("submitting video", true);
 
 	if(data){
 		submitedData = { videoId: data.videoId, time: data.time, room: roomName };
 		socket.emit("submitEvent", submitedData);
-		input = "";
+		document.querySelector(".URL").value = "";
 		return;
 	} else {
 		if(input.length === 43){
@@ -330,17 +343,17 @@ function sendSubmitEvent(data){
 			var time = input.split("&t=")[1];
 			submitedData = { videoId: id, time: time, room: roomName };
 			socket.emit("submitEvent", submitedData);
-			input = "";
+			document.querySelector(".URL").value = ""
 			return;
 		} else if(input.length === 28){
 			var id = input.split(".be/")[1];
 		} else if(input.includes("https://") && input.length > 43){
 			var id = input.split("watch?v=")[1].split("?")[0];
 		}
-
+	
 		submitedData = { videoId: id, room: roomName };
 		socket.emit("submitEvent", submitedData);
-		input = "";
+		document.querySelector(".URL").value = ""
 	}
 }
 
@@ -603,18 +616,18 @@ function changeState(event, visibility){
 	stateDisplay.dataset.active = String(visibility);
 }
 
-function format(time) {   
+function formatTimeString(time) {   
     // Hours, minutes and seconds
-    var hrs = ~~(time / 3600);
-    var mins = ~~((time % 3600) / 60);
-    var secs = ~~time % 60;
+    var hours = ~~(time / 3600);
+    var minutes = ~~((time % 3600) / 60);
+    var seconds = ~~time % 60;
 
     // Output like "1:01" or "4:03:59" or "123:03:59"
-    var ret = "";
-    if (hrs > 0) {
-        ret += "" + hrs + ":" + (mins < 10 ? "0" : "");
+    var display = "";
+    if (hours > 0) {
+        display += "" + hours + ":" + (minutes < 10 ? "0" : "");
     }
-    ret += "" + mins + ":" + (secs < 10 ? "0" : "");
-    ret += "" + secs;
-    return ret;
+    display += "" + minutes + ":" + (seconds < 10 ? "0" : "");
+    display += "" + seconds;
+    return display;
 }

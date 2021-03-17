@@ -86,12 +86,20 @@ html.transition *:after {
 	border-radius: 2rem;
 	margin: 0.25rem;
 	color: var(--statetext);
-	background-color: var(--bg)
+	background-color: var(--bg);
+	transition: color 250ms, background-color 250ms;
+}
+
+.URL[data-error=true]{
+	background-color: rgb(255, 98, 98);
+	color: var(--alttext);
+	text-align: center;
 }
 
 .URL::placeholder{
 	color: var(--statetext)
 }
+
 
 .state-wrapper{
 	display: flex;
