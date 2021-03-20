@@ -161,6 +161,9 @@ function initUI(){
 	var submitb = document.querySelector(".submit-button");
 	var bar = document.querySelector(".progress");
 	var cursor = document.querySelector(".cursor");
+	var tempCursor = document.querySelector(".cursor.alt");
+	var display = document.querySelector(".timer");
+	var tempDisplay = document.querySelector(".timer.temp");
 	var meter = document.querySelector(".volume-container");
 	var hamburger = document.querySelector(".hamburger");
 	var menu = document.querySelector(".menu");
@@ -197,13 +200,39 @@ function initUI(){
 		socket.emit("playerEvent", currData);
 	})
 
+	bar.addEventListener("mousemove", (event) => {
+		var duration = player.getDuration();
+		var offset = bar.offsetLeft;
+		var barWidth = bar.offsetWidth;
+		var cursorFraction = (tempCursor.offsetWidth/barWidth)*100;
+		var posFraction = (event.clientX - offset)/barWidth*(100 - cursorFraction);
+		var timeFraction = (event.clientX - offset)/barWidth*duration;
+
+		var finalCurrTime = formatTimeString(timeFraction);
+		var finalDuration = formatTimeString(duration);
+
+		tempDisplay.innerHTML = `${finalCurrTime}/${finalDuration}`;
+		tempCursor.style.left = posFraction + "%"
+
+		if(!display.dataset.active || display.dataset.active === "false"){
+			tempCursor.dataset.active = true;
+			tempDisplay.dataset.active = true;
+		} else{
+			tempCursor.dataset.active = false;
+			tempDisplay.dataset.active = false;
+		}
+	})
+
+	bar.addEventListener("mouseleave", () => {
+		tempCursor.dataset.active = false;
+		tempDisplay.dataset.active = false;
+	})
+
 	cursor.addEventListener("mouseover", () => {
-		var display = document.querySelector(".timer");
 		display.dataset.active = true;
 	})
 
 	cursor.addEventListener("mouseleave", () => {
-		var display = document.querySelector(".timer");
 		display.dataset.active = false;
 	})	
 
