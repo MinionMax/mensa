@@ -94,6 +94,7 @@ html.transition *:after {
 	background-color: rgb(255, 98, 98);
 	color: var(--alttext);
 	text-align: center;
+	font-weight: bold;
 }
 
 .URL::placeholder{
@@ -178,7 +179,7 @@ html.transition *:after {
 .player-wrapper{
 	align-self: center;
 	margin-top: 50px;
-	cursor: not-allowed;
+	cursor: pointer;
 }
 
 #player{

@@ -36,7 +36,6 @@ function onPlayerReady(){
 }
 
 
-
 // ===============
 // UI FUNTIONS
 // ===============
@@ -176,13 +175,9 @@ function initUI(){
 	var check =  document.querySelector(".far.fa-check-circle");
 	var cross = document.querySelector(".far.fa-times-circle");
 
-	playb.addEventListener("click", () => {
-		sendPlayEvent();
-	})
+	playb.addEventListener("click", sendPlayEvent);
 	
-	pauseb.addEventListener("click", () => {
-		sendPauseEvent();
-	})
+	pauseb.addEventListener("click", sendPauseEvent);
 
 	submitb.addEventListener("click", () => {
 		var input = document.querySelector(".URL");
@@ -253,9 +248,7 @@ function initUI(){
 		}, 600 );
 	})
 
-	dmButton.addEventListener("click", () => {
-		changeTheme();
-	})
+	dmButton.addEventListener("click", changeTheme);
 
 	destroy.addEventListener("click", () => {
 		menu.classList.toggle("appear");
@@ -286,6 +279,11 @@ function initUI(){
 	cross.addEventListener("click", () => {
 		menu.classList.toggle("appear");
 		destroyMenu.classList.toggle("appear");
+	})
+
+	video.addEventListener("click", () => {
+		if(player.getPlayerState() === 2 || -1) sendPlayEvent();
+		if(player.getPlayerState() === 1) sendPauseEvent();
 	})
 
 }
@@ -370,6 +368,7 @@ socket.on("playerEvent", (data) => {
 socket.on("loadEvent", (data) => {
 	changeState("submitting video", false);
 	var video = document.querySelector("#player");
+
 	if(data.time){
 		video.src = `https://www.youtube.com/embed/${data.videoId}?controls=0&disablekb=1&modestbranding=1&enablejsapi=1&start=${data.time}`;
 	} else{
@@ -392,6 +391,7 @@ function leaveRoom(data){
 // ===============
 document.addEventListener("keydown", (event) =>{
 	if(event.target.nodeName === "INPUT") return;
+
 	switch(event.code){
 		case "Space":
 			if(player.getPlayerState() === 2 || -1) sendPlayEvent();
@@ -417,6 +417,7 @@ document.addEventListener("keydown", (event) =>{
 		break;
 		case "KeyM":
 			var meter = document.querySelector(".meter")
+
 			if(player.isMuted()){
 				player.unMute();
 				meter.style.background = "var(--accent)";
@@ -434,6 +435,7 @@ document.addEventListener("keydown", (event) =>{
 // ===============
 function getSession(){
 	var sessionId = (document.cookie.split("=")[1] || "").split("expires")[0];
+
 	if(!sessionId || sessionId === "favicon.ico"){
 		const newSession = async (url, body) => {
 			const response = await fetch(url, {
@@ -498,6 +500,7 @@ async function roomNameGen(){
 
 function updateSession(){
 	var sessionId = document.cookie.split("=")[1].split("expires")[0];
+
 	const putSession = async (url, body) => {
 		const response = await fetch(url, {
 			method: "PUT",
@@ -516,6 +519,7 @@ function updateSession(){
 	var videoURL = document.querySelector("#player").src;
 	var videoId = videoURL.split("embed/")[1].split("?")[0];
 	var time = Math.floor(player.getCurrentTime());
+	
 	update = { id: sessionId, videoId: videoId, time: time };
 	putSession(API_URL + "/edit", update);
 }
