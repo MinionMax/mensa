@@ -83,10 +83,10 @@ function pauseVideo(){
 }
 
 function handleLoop(state){
-	var interval = null;
-	var interval2 = null;
-	var interval3 = null
-	if(state){
+	var interval;
+	var interval2;
+	var interval3;
+	if(state === true){
 		interval = setInterval(progressLoop, 200);
 		interval2 = setInterval(updateSession, 60000);
 		interval3 = setInterval(timeLoop, 1000);
