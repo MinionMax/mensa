@@ -21,7 +21,7 @@ app.get("/session/:id", (req, res) => {
 
 app.get("/video/:id", (req, res) => {
     var range = req.headers.range;
-    if(!range) res.status(400).send("Range header missing");
+    if(!range) return res.status(400).send("Range header missing");
 
     var baseUrl = "https://www.youtube.com/watch?v=";
     var video = ytdl(baseUrl + req.params.id);
@@ -41,11 +41,10 @@ app.get("/video/:id", (req, res) => {
         "Content-Length": contentLength,
         "Content-Type": "video/mp4"
     };
-
     res.writeHead(206, headers);
 
     const videoStream = ytdl(baseUrl + req.params.id, { start, end });
-    videoStream.pipe(res)
+    videoStream.pipe(res);
 })
 
 io.on("connection", (socket) => {

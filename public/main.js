@@ -13,7 +13,7 @@ function constructPlayer(){
 	if(videoId === "dQw4w9WgXcQ") getSession();
 	var previousVolume = localStorage.getItem("playerVolume");
 	localStorage.setItem("soughtTo", JSON.stringify(false));
-	player.setVolume(JSON.parse(previousVolume));
+	player.setVolume(JSON.parse(previousVolume)*100);
 }
 constructPlayer();
 

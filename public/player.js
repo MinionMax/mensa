@@ -39,6 +39,11 @@ class Player{
         this.player.volume = localStorage.getItem
     }
 
+    isMuted(){
+        if(this.muted === true) return true;
+        else return false;
+    }
+
     get playerState(){
         if(this.player.paused) return 2;
         if(this.player.played === 0) return -1;
