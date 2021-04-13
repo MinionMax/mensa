@@ -180,6 +180,8 @@ html.transition *:after {
 	align-self: center;
 	margin-top: 50px;
 	cursor: pointer;
+	width: 960px;
+	height: 540px;
 }
 
 #player{
@@ -202,8 +204,6 @@ html.transition *:after {
 	margin-left: 10px;
 	margin-right: 8px;
 	cursor: pointer;
-	/* display: flex;
-	flex-wrap: wrap; */
 	float: left;
 }
 
