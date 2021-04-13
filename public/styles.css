@@ -473,3 +473,5 @@ html.transition *:after {
 	color: var(--alttext);
 	margin: 0;
 }
+
+@media screen and (max-width: 959px){}

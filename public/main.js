@@ -11,8 +11,8 @@ firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 var player;
 function onYouTubeIframeAPIReady() {
 	player = new YT.Player('player', {
-		height: '540',
-		width: '960',
+		height: '100%',
+		width: '100%',
 		videoId: "dQw4w9WgXcQ",
 		events: {
 			"onReady": onPlayerReady
@@ -27,6 +27,7 @@ function onYouTubeIframeAPIReady() {
 
 function onPlayerReady(){
 	whichAPIURL();
+	resizeUI();
 	var videoURL = document.querySelector("#player").src;
 	var videoId = videoURL.split("embed/")[1].split("?")[0];
 	if(videoId === "dQw4w9WgXcQ") getSession();
@@ -622,7 +623,7 @@ function getEnv(){
 	var dmMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 	if(dmMediaQuery.matches) localStorage.setItem("dark", JSON.stringify(true));
 
-	dmMediaQuery.addEventListener("change", (event) =>{
+	dmMediaQuery.addEventListener("change", (event) => {
 		if(event.matches){
 			changeTheme();
 		} else{
@@ -631,6 +632,26 @@ function getEnv(){
 	})
 }
 getEnv();
+
+function resizeUI(){
+
+	var screenMediaQuery = window.matchMedia("(max-width: 959px)");
+	var video = document.querySelector(".player-wrapper");
+	var submit = document.querySelector(".submit");
+	if(screenMediaQuery.matches){
+
+		var screenWidth = window.screen.width;
+		var playerPxRatio = (9/16)*screenWidth;
+
+		video.style.width = String(screenWidth) + "px";
+		video.style.height = String(playerPxRatio) + "px";
+		submit.style.width = "100%"
+	} else{
+		video.style.width = "960px";
+		video.style.height = "540px";
+	}
+
+}
 
 function whichAPIURL(){
 	var host = location.hostname;
