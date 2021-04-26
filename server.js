@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http);
+const search = require("ytsr");
 const cookieParser = require("cookie-parser");
 const PORT = process.env.PORT || 3000;
 
@@ -38,6 +39,15 @@ io.on("connection", (socket) => {
     socket.on("submitEvent", (data) => {
         io.to(data.room).emit("loadEvent", data);
         console.log(data);
+    });
+
+    socket.on("queueEvent", async (data) =>{
+        var res = await search(data.url);
+        var title = res.items[0].title;
+        var id = res.items[0].id
+
+        var queue = { id: id, title: title }
+        io.to(data.room).emit("enqueueEvent", queue);
     });
 
     socket.on("disconnect", () => {

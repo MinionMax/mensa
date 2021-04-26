@@ -4,13 +4,15 @@
   "description": "w2g.tv clone",
   "main": "main.js",
   "scripts": {
-    "test": "concurrently \"cd ../mensa-sessions && npm run test\" \"nodemon server.js\""
+    "quick": "concurrently \"cd ../mensa-sessions && npm run test\" \"nodemon server.js\"",
+    "test": "nodemon server.js", 
+    "build": "node server.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/MinionMax/mensa.git"
   },
-  "author": "",
+  "author": "MinionMax",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/MinionMax/mensa/issues"
@@ -20,7 +22,8 @@
     "cookie-parser": "^1.4.5",
     "express": "^4.17.1",
     "http": "^0.0.1-security",
-    "socket.io": "^3.1.0"
+    "socket.io": "^3.1.0",
+    "ytsr": "^3.4.1"
   },
   "nodemonConfig": {
     "ext": "js, css, html, json"

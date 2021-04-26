@@ -155,6 +155,39 @@ function closeFullscreen() {
 	}
 }
 
+function fillQueue() {
+	var queueList = document.querySelector(".queue-list");
+
+	if(queueList.hasChildNodes()){
+		while(queueList.lastChild){
+
+			queueList.removeChild(queueList.lastChild);
+		}
+	}
+
+	var queue = JSON.parse(localStorage.getItem("queue"));
+
+	if(!queue){
+		var liElem = document.createElement("li");
+		queueList.appendChild(liElem);
+		liElem.innerHTML = "nothing here yet, enqueue a video to play next";
+		return;
+	}
+	for(var i = 0; i < queue.length; i++){
+		var liElem = document.createElement("li");
+		liElem.classList.add("queue-element");
+		queueList.appendChild(liElem);
+		liElem.innerHTML = queue[i].title;
+		liElem.dataset.id = queue[i].id;
+
+		liElem.addEventListener("click", (event) => {
+			var roomName = JSON.parse(localStorage.getItem("roomName"));
+			var data = {videoId: event.target.dataset.id, time: 0, roomName: roomName}
+			sendSubmitEvent(data);
+		})
+	};
+}
+
 
 function initUI(){
 	var playb = document.querySelector(".play");
@@ -178,15 +211,24 @@ function initUI(){
 	var valid = document.querySelector(".valid");
 	var check =  document.querySelector(".far.fa-check-circle");
 	var cross = document.querySelector(".far.fa-times-circle");
+	var listB = document.querySelector(".fas.fa-list");
+	var queue = document.querySelector(".queue-container");
+
 
 	playb.addEventListener("click", sendPlayEvent);
 	
 	pauseb.addEventListener("click", sendPauseEvent);
 
 	submitb.addEventListener("click", () => {
+		var role = submitb.dataset.role;
 		var input = document.querySelector(".URL");
-		if(input.value){
+		
+		if(!input.value) return;
+		
+		if(role === "submit"){
 			sendSubmitEvent();
+		} else if(role === "enqueue"){
+			sendQueueEvent();
 		}
 	})
 
@@ -316,6 +358,23 @@ function initUI(){
 		if(player.getPlayerState() === 1) sendPauseEvent();
 	})
 
+	listB.addEventListener("click", () => {
+		var visibility = queue.dataset.visibility;
+
+		if(visibility === "visible"){
+			queue.style.visibility = "hidden";
+			queue.dataset.visibility = "hidden";
+			submitb.innerHTML = "submit";
+			submitb.dataset.role = "submit";
+			return;
+		}
+		fillQueue();
+		queue.dataset.visibility = "visible";
+		queue.style.visibility = "visible";
+		submitb.innerHTML = "enqueue";
+		submitb.dataset.role = "enqueue";
+	})
+	
 }
 initUI();
 
@@ -385,6 +444,28 @@ function sendSubmitEvent(data){
 	}
 }
 
+function sendQueueEvent(){
+	var roomName = JSON.parse(localStorage.getItem("roomName"));
+	var input = document.querySelector(".URL").value;
+
+	if(!input.includes("youtu.be") && !input.includes("youtube.com") && !data){
+		var inputElem = document.querySelector(".URL");
+		inputElem.dataset.error = true;
+		inputElem.value = "PLEASE ENTER A VALID YOUTUBE URL";
+		var temp = setInterval( () => {
+			inputElem.dataset.error = false;
+			inputElem.value = ""
+			clearInterval(temp);
+		}, 800 );
+		return;
+	}
+
+	if(!input.includes("playlist")){
+		var submitedData = { url: input, room: roomName };
+		socket.emit("queueEvent", submitedData);
+	}
+}
+
 socket.on("playerEvent", (data) => {
 	if(data.playerStatus === "play"){
 		playVideo(data);
@@ -405,6 +486,22 @@ socket.on("loadEvent", (data) => {
 		video.src = `https://www.youtube.com/embed/${data.videoId}?controls=0&disablekb=1&modestbranding=1&enablejsapi=1`;
 	}
 	updateSession();
+})
+
+socket.on("enqueueEvent", (data) => {
+	var queue = JSON.parse(localStorage.getItem("queue"));
+
+	if(!queue){
+		var newQueue = [{ id: data.id, title: data.title }];
+		localStorage.setItem("queue", JSON.stringify(newQueue));
+		fillQueue();
+	} else {
+		console.log(queue)
+		queue.push(data);
+		localStorage.setItem("queue", JSON.stringify(queue));
+		console.log(queue);
+		fillQueue();
+	}
 })
 
 function joinRoom(data){
@@ -634,24 +731,29 @@ function getEnv(){
 getEnv();
 
 function resizeUI(){
-
 	var screenMediaQuery = window.matchMedia("(max-width: 959px)");
 	var video = document.querySelector(".player-wrapper");
 	var submit = document.querySelector(".submit");
-	if(screenMediaQuery.matches){
+	const calSize = () => {
+		if(screenMediaQuery.matches){
 
-		var screenWidth = window.screen.width;
-		var playerPxRatio = (9/16)*screenWidth;
+			var screenWidth = window.screen.width;
+			var playerPxRatio = (9/16)*screenWidth;
 
-		video.style.width = String(screenWidth) + "px";
-		video.style.height = String(playerPxRatio) + "px";
-		submit.style.width = "100%"
-	} else{
-		video.style.width = "960px";
-		video.style.height = "540px";
+			video.style.width = String(screenWidth) + "px";
+			video.style.height = String(playerPxRatio) + "px";
+			submit.style.width = "100%"
+		} else{
+			video.style.width = "960px";
+			video.style.height = "540px";
+			submit.style.width = "500px"
+			
+		}
 	}
-
+	calSize();
 }
+
+window.addEventListener("resize", resizeUI()) 
 
 function whichAPIURL(){
 	var host = location.hostname;

@@ -45,7 +45,7 @@ body{
    display: flex;
    justify-content: center;
    flex-direction: column;
-	background-color: var(--bg);
+   background-color: var(--bg);
 }
 
 html.transition,
@@ -58,17 +58,32 @@ html.transition *:after {
 
 
 .submit{
-	padding: 0.25rem;
+	padding: 0.4rem;
 	display: flex;
-	height: 3rem;
+	height: max-content;
+	max-height: 35rem;
 	box-sizing: border-box;
 	width: 500px;
-	align-self: center;
-	display: flex;
 	border-color: var(--text);
 	border-style: solid;
+	background-color: var(--bg);
 	border-radius: 6px;
+	position: absolute;
+	justify-content: center;
+	flex-wrap: wrap;
+	left: 0;
+	right: 0;
+	margin: 0 auto;
+}
+
+header{
+	height: 3em;
 	margin-bottom: 10px;
+	width: 100%;
+}
+
+.list{
+	align-self: center;
 }
 
 .submit-button{
@@ -77,6 +92,8 @@ html.transition *:after {
 	outline: none;
 	border: none;
 	cursor: pointer;
+	height: 30px;
+	align-self: center;
 }
 
 .URL{
@@ -88,6 +105,8 @@ html.transition *:after {
 	color: var(--statetext);
 	background-color: var(--bg);
 	transition: color 250ms, background-color 250ms;
+	height: 30px;
+	align-self: center;
 }
 
 .URL[data-error=true]{
@@ -101,6 +120,54 @@ html.transition *:after {
 	color: var(--statetext)
 }
 
+.queue-container{
+	align-self: center;
+	background-color: var(--text);
+	color: var(--alttext);
+	height: 0;
+	width: 0;
+	border-radius: 6px;
+	opacity: 0;
+}
+
+.queue-container[data-visibility=visible]{
+	visibility: visible;
+	opacity: 1;
+	z-index: 2;
+	height: max-content;
+	width: 100%;
+	animation: growDown 300ms ease-in-out forwards;
+	transform-origin: top;
+	transition: visiblity 250ms, opacity 250ms;
+}
+
+@keyframes growDown {
+	0% {
+	  transform: scaleY(0)
+	}
+	80% {
+	  transform: scaleY(1.1)
+	}
+	100% {
+	  transform: scaleY(1)
+	}
+}
+
+
+.queue-header{
+	margin: 0;
+}
+
+.queue-list{
+	display: flex;
+	justify-content: space-evenly;
+	flex-direction: column;
+
+}
+
+.queue-element{
+	cursor: pointer;
+}
 
 .state-wrapper{
 	display: flex;
@@ -274,13 +341,6 @@ html.transition *:after {
 	color: var(--text)
 }
 
-.sessionId{
-	position: absolute;
-	left: 0;
-	top: 100%;
-	font-size: small;
-}
-
 .volume-container{
 	height: 10px;
 	border-style: solid;
@@ -382,7 +442,7 @@ html.transition *:after {
 
 .appear{
 	opacity: 1;
-	z-index: 2;
+	z-index: 3;
 	transition: 250ms;
 	transition-property: opacity;
 }
@@ -430,7 +490,7 @@ html.transition *:after {
 
 .destroy-valid-container.appear{
 	opacity: 1;
-	z-index: 2;
+	z-index: 3;
 	transition: 250ms;
 	transition-property: opacity;
 }

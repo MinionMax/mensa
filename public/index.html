@@ -8,10 +8,19 @@
     <title>mensa</title>
 </head>
 <body>
-    <form class="submit">
-        <input type="text" name="video" class="URL" placeholder="Enter YouTube URL here"> 
-        <button type="button" class="submit-button">submit</button>
-    </form>
+    <header>
+        <form class="submit">
+            <div class="list">
+                <i class="fas fa-list"></i>
+            </div>
+            <input type="text" name="video" class="URL" placeholder="Enter YouTube URL here"> 
+            <button type="button" class="submit-button" data-role="submit">submit</button>
+            <div class="queue-container">
+                <h3 class="queue-header">queue</h3>
+                <ol class="queue-list"></ol>
+            </div>
+        </form>
+    </header>
     <div class="state-wrapper">
         <span class="loader"><span class="loader-inner"></span></span>
         <p class="state"></p>
