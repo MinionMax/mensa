@@ -5,8 +5,7 @@
   "main": "main.js",
   "scripts": {
     "quick": "concurrently \"cd ../mensa-sessions && npm run test\" \"nodemon server.js\"",
-    "test": "nodemon server.js",
-    "build": "node server.js"
+    "test": "nodemon server.js"
   },
   "repository": {
     "type": "git",
