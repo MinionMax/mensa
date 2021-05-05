@@ -15,11 +15,11 @@ function fillQueue() {
 
 	if(!queue){
 		var liElem = document.createElement("li");
-
 		clearB.dataset.active = false;
 		queueList.appendChild(liElem);
 		liElem.innerHTML = "nothing here yet, enqueue a video to play next";
 		return;
+
 	} else if(queue) clearB.dataset.active = true
 
 	for(var i = 0; i < queue.length; i++){

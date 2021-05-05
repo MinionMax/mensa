@@ -2,7 +2,8 @@ const express = require("express");
 const app = express();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http);
-const search = require("ytsr");
+const vidSearch = require("ytsr");
+const listSearch = require("ytpl");
 const cookieParser = require("cookie-parser");
 const PORT = process.env.PORT || 3000;
 
@@ -42,12 +43,30 @@ io.on("connection", (socket) => {
     });
 
     socket.on("queueEvent", async (data) =>{
-        var res = await search(data.url);
-        var title = res.items[0].title;
-        var id = res.items[0].id
+        if(!data.playlist){
 
-        var queue = { id: id, title: title }
-        io.to(data.room).emit("enqueueEvent", queue);
+            var res = await vidSearch(data.url);
+            var title = res.items[0].title;
+            var id = res.items[0].id
+
+            var queue = { id: id, title: title }
+            io.to(data.room).emit("enqueueEvent", queue);
+
+        } else if(data.playlist){
+
+            var res = await listSearch(data.url);
+            var queue = [];
+
+            for(var i = 0; i < res.items.length; i++){
+                var id = res.items[i].id;
+                var title = res.items[i].title;
+
+                queue.push({ id: id, title: title})
+            }
+
+            io.to(data.room).emit("enqueueEvent", queue);
+            
+        }
     });
 
     socket.on("disconnect", () => {

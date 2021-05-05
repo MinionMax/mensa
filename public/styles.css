@@ -132,6 +132,7 @@ header{
 	width: 0;
 	border-radius: 6px;
 	opacity: 0;
+	max-height: 35rem;
 }
 
 .queue-container[data-visibility=visible]{
@@ -140,7 +141,7 @@ header{
 	z-index: 2;
 	height: max-content;
 	width: 100%;
-	animation: growDown 300ms ease-in-out forwards;
+	animation: growDown 300ms ease-in-out both;
 	transform-origin: top;
 	transition: visiblity 250ms, opacity 250ms;
 	padding: 2%;
@@ -156,6 +157,18 @@ header{
 	}
 	100% {
 	  transform: scaleY(1)
+	}
+}
+
+@keyframes growOut {
+	0% {
+	  transform: translateX(-100%)
+	}
+	80% {
+		transform: translateX(-10%)
+	}
+	100% {
+	  transform: translateX(0)
 	}
 }
 
@@ -190,7 +203,8 @@ header{
 
 .queue-element{
 	cursor: pointer;
-
+	animation: growOut 250ms ease-in-out forwards;
+	padding: 1%;
 }
 
 .state-wrapper{

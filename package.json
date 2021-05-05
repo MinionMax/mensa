@@ -23,6 +23,7 @@
     "express": "^4.17.1",
     "http": "^0.0.1-security",
     "socket.io": "^3.1.0",
+    "ytpl": "^2.2.0",
     "ytsr": "^3.4.1"
   },
   "nodemonConfig": {

@@ -83,7 +83,10 @@ function sendQueueEvent(){
 	}
 
 	if(!input.includes("playlist")){
-		var submitedData = { url: input, room: CREDS.roomName };
+		var submitedData = { url: input, playlist: false, room: CREDS.roomName };
+		socket.emit("queueEvent", submitedData);
+	} else if(input.includes("playlist")){
+		var submitedData = { url: input, playlist: true, room: CREDS.roomName };
 		socket.emit("queueEvent", submitedData);
 	}
 }
@@ -113,10 +116,18 @@ socket.on("loadEvent", (data) => {
 socket.on("enqueueEvent", (data) => {
 	var queue = CREDS.queue;
 
-	if(!queue){
+	var objectConstructor = ({}).constructor;
+	var arrayConstructor = [].constructor;
+
+	if(!queue  && data.constructor === objectConstructor){
 		var newQueue = [{ id: data.id, title: data.title }];
 		localStorage.setItem("queue", JSON.stringify(newQueue));
-		localStorage.setItem("queueIndex", JSON.stringify(-1))
+		localStorage.setItem("queueIndex", JSON.stringify(-1));
+		exportCreds();
+		fillQueue();
+	} else if(!queue && data.constructor === arrayConstructor){
+		localStorage.setItem("queue", JSON.stringify(data));
+		localStorage.setItem("queueIndex", JSON.stringify(-1));
 		exportCreds();
 		fillQueue();
 	} else {
@@ -125,6 +136,8 @@ socket.on("enqueueEvent", (data) => {
 		exportCreds();
 		fillQueue();
 	}
+
+	updateSession();
 })
 
 function joinRoom(data){

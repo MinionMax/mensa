@@ -51,9 +51,12 @@ function getSession(){
 			.then(data => {
 				changeState("fetching session", false)
 				localStorage.setItem("roomName", JSON.stringify(data.roomName));
+                localStorage.setItem("queue", JSON.stringify(data.queue));
+                localStorage.setItem("queueIndex", JSON.stringify(data.queueIndex));
 				exportCreds();
 				joinRoom(data);
 				sendSubmitEvent(data);
+                fillQueue();
 			}).catch(err => {
 				changeState("failed fetching session", true)
 				document.cookie = "sessionId=;";
@@ -69,7 +72,6 @@ async function roomNameGen(){
 }
 
 function updateSession(){
-
 
 	const putSession = async (url, body) => {
 		const response = await fetch(url, {
@@ -90,7 +92,14 @@ function updateSession(){
 	var videoId = videoURL.split("embed/")[1].split("?")[0];
 	var time = Math.floor(player.getCurrentTime());
 	
-	update = { id: CREDS.sessionId, videoId: videoId, time: time };
+	update = { 
+        id: CREDS.sessionId,
+        videoId: videoId,
+        time: time,
+        queue: CREDS.queue,
+        queueIndex: CREDS.queueIndex
+    };
+
 	putSession(API_URL + "/edit", update);
 }
 
