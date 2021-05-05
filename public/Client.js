@@ -110,8 +110,8 @@ function exportCreds(){
 	var sessionId = (document.cookie.split("=")[1] || "").split("expires")[0];
 	var roomName = JSON.parse(localStorage.getItem("roomName"));
 	var dark = JSON.parse(localStorage.getItem("dark"));
-	var queue = JSON.parse(localStorage.getItem("queue") || null);
-	var queueIndex = JSON.parse(localStorage.getItem("queueIndex") || null);
+	var queue = (JSON.parse(localStorage.getItem("queue"))) || null;
+	var queueIndex = (JSON.parse(localStorage.getItem("queueIndex"))) || null;
 
 	const creds = {
 		sessionId: sessionId,
