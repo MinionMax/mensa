@@ -15,7 +15,9 @@ function onYouTubeIframeAPIReady() {
 		width: '100%',
 		videoId: "dQw4w9WgXcQ",
 		events: {
+			"onStateChange": onPlayerStateChange,
 			"onReady": onPlayerReady
+
 		},
 		playerVars: {
 			'controls': 0,
@@ -27,6 +29,7 @@ function onYouTubeIframeAPIReady() {
 
 function onPlayerReady(){
 	whichAPIURL();
+	exportCreds();
 	resizeUI();
 	var videoURL = document.querySelector("#player").src;
 	var videoId = videoURL.split("embed/")[1].split("?")[0];
@@ -36,10 +39,24 @@ function onPlayerReady(){
 	player.setVolume(JSON.parse(previousVolume));
 }
 
+function onPlayerStateChange(event){
+	// if(event.data === YT.PlayerState.ENDED && CREDS.queue != null){
+	// 	nextVideo();
+	// }
+	// console.log(event.data)
+	// return;
+	console.log("change");
+}
 
-// ===============
-// UI FUNTIONS
-// ===============
+function nextVideo(){
+	var currIndex = CREDS.queueIndex;
+	var nextIndex = currIndex + 1;
+	localStorage.setItem("queueIndex", JSON.stringify(nextIndex));
+	var data = { videoId: CREDS.queue[nextIndex].id, time: 0 }
+	sendSubmitEvent(data);
+	exportCreds();
+}
+
 function progressLoop(){
 	var cursor = document.querySelector(".cursor");
 	var barWidth = document.querySelector(".progress").offsetWidth;
@@ -83,11 +100,16 @@ function pauseVideo(){
 	player.pauseVideo();
 }
 
+var interval;
+var interval2;
+var interval3;
 function handleLoop(state){
-	var interval;
-	var interval2;
-	var interval3;
+
 	if(state === true){
+		clearInterval(interval);
+		clearInterval(interval2);
+		clearInterval(interval3);
+
 		interval = setInterval(progressLoop, 200);
 		interval2 = setInterval(updateSession, 60000);
 		interval3 = setInterval(timeLoop, 1000);
@@ -96,6 +118,7 @@ function handleLoop(state){
 		clearInterval(interval2);
 		clearInterval(interval3);
 	}
+
 }
 
 function volumeUp(){
@@ -123,14 +146,14 @@ function saveSettings(){
 }
 
 function minusFiveSec(){
-	var roomName = JSON.parse(localStorage.getItem("roomName"));
-	currData = { playerStatus: "play", time: player.getCurrentTime() - 5, room: roomName };
+
+	currData = { playerStatus: "play", time: player.getCurrentTime() - 5, room: CREDS.roomName };
 	socket.emit("playerEvent", currData);
 }
 
 function plusFiveSec(){
-	var roomName = JSON.parse(localStorage.getItem("roomName"));
-	currData = { playerStatus: "play", time: player.getCurrentTime() + 5, room: roomName };
+
+	currData = { playerStatus: "play", time: player.getCurrentTime() + 5, room: CREDS.roomName };
 	socket.emit("playerEvent", currData);
 }
 
@@ -155,34 +178,41 @@ function closeFullscreen() {
 	}
 }
 
+// ===============
+// UI FUNTIONS
+// ===============
 function fillQueue() {
 	var queueList = document.querySelector(".queue-list");
+	var clearB = document.querySelector(".clear-button");
 
 	if(queueList.hasChildNodes()){
 		while(queueList.lastChild){
-
 			queueList.removeChild(queueList.lastChild);
 		}
 	}
 
-	var queue = JSON.parse(localStorage.getItem("queue"));
+	var queue = CREDS.queue
 
 	if(!queue){
 		var liElem = document.createElement("li");
+
+		clearB.dataset.active = false;
 		queueList.appendChild(liElem);
 		liElem.innerHTML = "nothing here yet, enqueue a video to play next";
 		return;
-	}
+	} else if(queue) clearB.dataset.active = true
+	
 	for(var i = 0; i < queue.length; i++){
 		var liElem = document.createElement("li");
 		liElem.classList.add("queue-element");
 		queueList.appendChild(liElem);
 		liElem.innerHTML = queue[i].title;
 		liElem.dataset.id = queue[i].id;
-
+		liElem.dataset.index = i
 		liElem.addEventListener("click", (event) => {
-			var roomName = JSON.parse(localStorage.getItem("roomName"));
-			var data = {videoId: event.target.dataset.id, time: 0, roomName: roomName}
+			var data = { videoId: event.target.dataset.id, time: 0, roomName: CREDS.roomName }
+			localStorage.setItem("queueIndex", JSON.stringify(Number(event.target.dataset.index)));
+			exportCreds();
 			sendSubmitEvent(data);
 		})
 	};
@@ -213,6 +243,7 @@ function initUI(){
 	var cross = document.querySelector(".far.fa-times-circle");
 	var listB = document.querySelector(".fas.fa-list");
 	var queue = document.querySelector(".queue-container");
+	var clearB = document.querySelector(".clear-button");
 
 
 	playb.addEventListener("click", sendPlayEvent);
@@ -237,9 +268,9 @@ function initUI(){
 		var offset = bar.offsetLeft;
 		var barWidth = bar.offsetWidth;
 		var seekTo = (event.clientX - offset)/barWidth*duration;
-		var roomName = JSON.parse(localStorage.getItem("roomName"));
+	
 
-		currData = { playerStatus: "play", time: seekTo, room: roomName };
+		currData = { playerStatus: "play", time: seekTo, room: CREDS.roomName };
 		socket.emit("playerEvent", currData);
 	})
 
@@ -306,9 +337,9 @@ function initUI(){
 	})
 
 	share.addEventListener("click", () => {
-		var sessionId = document.cookie.split("=")[1].split("expires")[0];
-		var sessionLink = `https://js-mensa.herokuapp.com/session/${sessionId}`;
-		document.addEventListener("copy", (event) =>{
+	
+		var sessionLink = `https://js-mensa.herokuapp.com/session/${CREDS.sessionId}`;
+		document.addEventListener("copy", (event) => {
 			event.clipboardData.setData("text/plain", sessionLink);
 			event.preventDefault();
 		})
@@ -373,7 +404,17 @@ function initUI(){
 		queue.style.visibility = "visible";
 		submitb.innerHTML = "enqueue";
 		submitb.dataset.role = "enqueue";
-	})
+	});
+
+	clearB.addEventListener("click", () => {
+		if(CREDS.queue != null){
+			localStorage.removeItem("queue");
+			localStorage.removeItem("queueIndex");
+			exportCreds();
+			fillQueue();
+		}
+
+	});
 	
 }
 initUI();
@@ -384,23 +425,23 @@ initUI();
 // ===============
 function sendPlayEvent(){
 	var videoURL = document.querySelector("#player").src;
-	var roomName = JSON.parse(localStorage.getItem("roomName"));
+
 	if(videoURL.includes("start") && player.getPlayerState() === -1){
-		currData = { playerStatus: "play", time: Number(videoURL.slice("start=")[1]), room: roomName };
+		currData = { playerStatus: "play", time: Number(videoURL.slice("start=")[1]), room: CREDS.roomName };
 	} else{
-		currData = { playerStatus: "play", time: player.getCurrentTime(), room: roomName };
+		currData = { playerStatus: "play", time: player.getCurrentTime(), room: CREDS.roomName };
 	}
 	socket.emit("playerEvent", currData);
 }
 
 function sendPauseEvent(){
-	var roomName = JSON.parse(localStorage.getItem("roomName"));
-	currData = { playerStatus: "pause", time: player.getCurrentTime(), room: roomName };
+
+	currData = { playerStatus: "pause", time: player.getCurrentTime(), room: CREDS.roomName };
 	socket.emit("playerEvent", currData);
 }
 
 function sendSubmitEvent(data){
-	var roomName = JSON.parse(localStorage.getItem("roomName"));
+
 	var input = document.querySelector(".URL").value;
 
 	if(!input.includes("youtu.be") && !input.includes("youtube.com") && !data){
@@ -418,7 +459,7 @@ function sendSubmitEvent(data){
 	changeState("submitting video", true);
 
 	if(data){
-		submitedData = { videoId: data.videoId, time: data.time, room: roomName };
+		submitedData = { videoId: data.videoId, time: data.time, room: CREDS.roomName };
 		socket.emit("submitEvent", submitedData);
 		document.querySelector(".URL").value = "";
 		return;
@@ -428,7 +469,7 @@ function sendSubmitEvent(data){
 		} else if(input.includes("&t=") && input.includes("watch?v=")){
 			var id = input.split("watch?v=")[1].split("&")[0];
 			var time = input.split("&t=")[1];
-			submitedData = { videoId: id, time: time, room: roomName };
+			submitedData = { videoId: id, time: time, room: CREDS.roomName };
 			socket.emit("submitEvent", submitedData);
 			document.querySelector(".URL").value = ""
 			return;
@@ -438,14 +479,14 @@ function sendSubmitEvent(data){
 			var id = input.split("watch?v=")[1].split("?")[0];
 		}
 	
-		submitedData = { videoId: id, room: roomName };
+		submitedData = { videoId: id, room: CREDS.roomName };
 		socket.emit("submitEvent", submitedData);
 		document.querySelector(".URL").value = ""
 	}
 }
 
 function sendQueueEvent(){
-	var roomName = JSON.parse(localStorage.getItem("roomName"));
+
 	var input = document.querySelector(".URL").value;
 
 	if(!input.includes("youtu.be") && !input.includes("youtube.com") && !data){
@@ -461,7 +502,7 @@ function sendQueueEvent(){
 	}
 
 	if(!input.includes("playlist")){
-		var submitedData = { url: input, room: roomName };
+		var submitedData = { url: input, room: CREDS.roomName };
 		socket.emit("queueEvent", submitedData);
 	}
 }
@@ -489,17 +530,18 @@ socket.on("loadEvent", (data) => {
 })
 
 socket.on("enqueueEvent", (data) => {
-	var queue = JSON.parse(localStorage.getItem("queue"));
+	var queue = CREDS.queue;
 
 	if(!queue){
 		var newQueue = [{ id: data.id, title: data.title }];
 		localStorage.setItem("queue", JSON.stringify(newQueue));
+		localStorage.setItem("queueIndex", JSON.stringify(-1))
+		exportCreds();
 		fillQueue();
 	} else {
-		console.log(queue)
 		queue.push(data);
 		localStorage.setItem("queue", JSON.stringify(queue));
-		console.log(queue);
+		exportCreds();
 		fillQueue();
 	}
 })
@@ -561,9 +603,9 @@ document.addEventListener("keydown", (event) =>{
 // SESSION CONNECTION
 // ===============
 function getSession(){
-	var sessionId = (document.cookie.split("=")[1] || "").split("expires")[0];
 
-	if(!sessionId || sessionId === "favicon.ico"){
+
+	if(!CREDS.sessionId || CREDS.sessionId === "favicon.ico"){
 		const newSession = async (url, body) => {
 			const response = await fetch(url, {
 				method: "POST",
@@ -589,6 +631,7 @@ function getSession(){
 					changeState("creating session", false);
 				});
 			localStorage.setItem("roomName", JSON.stringify(roomName));
+			exportCreds();
 		})
 	} else {
 		const fetchSession = async (url) => {
@@ -606,15 +649,17 @@ function getSession(){
 			return response.json();
 		}
 
-		fetchSession(API_URL + `/last/${sessionId}`)
+		fetchSession(API_URL + `/last/${CREDS.sessionId}`)
 			.then(data => {
 				changeState("fetching session", false)
 				localStorage.setItem("roomName", JSON.stringify(data.roomName));
+				exportCreds();
 				joinRoom(data);
 				sendSubmitEvent(data);
 			}).catch(err => {
 				changeState("failed fetching session", true)
 				document.cookie = "sessionId=;";
+				exportCreds();
 				getSession();
 			})
 	}
@@ -626,7 +671,7 @@ async function roomNameGen(){
 }
 
 function updateSession(){
-	var sessionId = document.cookie.split("=")[1].split("expires")[0];
+
 
 	const putSession = async (url, body) => {
 		const response = await fetch(url, {
@@ -647,12 +692,12 @@ function updateSession(){
 	var videoId = videoURL.split("embed/")[1].split("?")[0];
 	var time = Math.floor(player.getCurrentTime());
 	
-	update = { id: sessionId, videoId: videoId, time: time };
+	update = { id: CREDS.sessionId, videoId: videoId, time: time };
 	putSession(API_URL + "/edit", update);
 }
 
 function destroySession(){
-	var sessionId = document.cookie.split("=")[1].split("expires")[0];
+
 	const deleteSession = async (url) => {
 		changeState("destroying session", true);
 		const response = await fetch(url, {
@@ -668,14 +713,15 @@ function destroySession(){
 		return response;
 	}
 
-	deleteSession(API_URL + `/destroy/${sessionId}`)
+	deleteSession(API_URL + `/destroy/${CREDS.sessionId}`)
 		.then(data => {
 			changeState("destroying session", false);
-			var roomName = JSON.parse(localStorage.getItem("roomName"));
-			leaveRoom(roomName);
+		
+			leaveRoom(CREDS.roomName);
 			getSession();
 		}).catch(err =>{
 			document.cookie = "sessionId=;";
+			exportCreds();
 			getSession();
 		});
 }
@@ -689,6 +735,7 @@ function writeCookie(id){
 	var now = new Date()
 	now.setMonth(now.getMonth() + 2);
 	document.cookie = `sessionId=${id};expires=${now.toUTCString()};`;
+	exportCreds();
 }
 
 function transit(){
@@ -786,4 +833,23 @@ function formatTimeString(time) {
     display += "" + minutes + ":" + (seconds < 10 ? "0" : "");
     display += "" + seconds;
     return display;
+}
+
+function exportCreds(){
+
+	var sessionId = (document.cookie.split("=")[1] || "").split("expires")[0];
+	var roomName = JSON.parse(localStorage.getItem("roomName"));
+	var dark = JSON.parse(localStorage.getItem("dark"));
+	var queue = JSON.parse(localStorage.getItem("queue")) || null;
+	var queueIndex = JSON.parse(localStorage.getItem("queueIndex")) || null;
+
+	const creds = {
+		sessionId: sessionId,
+		roomName: roomName,
+		dark: dark,
+		queue: queue,
+		queueIndex: queueIndex
+	}
+
+	window.CREDS = creds;
 }

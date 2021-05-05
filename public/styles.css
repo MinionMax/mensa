@@ -9,6 +9,7 @@
 	html{
 		--accent: #407294;
 		--text: black;
+		--pannel: #333333;
 		--alttext: white;
 		--statetext: black;
 		--bg: #fff;
@@ -19,6 +20,7 @@
 	html[data-theme="dark"]{
 		--accent: #423896;
 		--text: #333333;
+		--pannel: #333333;
 		--alttext: #fff;
 		--statetext: white;
 		--bg: rgb(17, 17, 17); 
@@ -28,6 +30,7 @@
 html{
 	--accent: #407294;
 	--text: black;
+	--pannel: white;
 	--alttext: white;
 	--statetext: black;
 	--bg: #fff;
@@ -36,6 +39,7 @@ html{
 html[data-theme="dark"]{
 	--accent: #423896;
 	--text: #333333;
+	--pannel: #333333;
 	--alttext: #fff;
 	--statetext: white;
 	--bg: rgb(17, 17, 17); 
@@ -58,7 +62,7 @@ html.transition *:after {
 
 
 .submit{
-	padding: 0.4rem;
+	padding: 0.3rem;
 	display: flex;
 	height: max-content;
 	max-height: 35rem;
@@ -122,7 +126,7 @@ header{
 
 .queue-container{
 	align-self: center;
-	background-color: var(--text);
+	background-color: var(--pannel);
 	color: var(--alttext);
 	height: 0;
 	width: 0;
@@ -139,7 +143,9 @@ header{
 	animation: growDown 300ms ease-in-out forwards;
 	transform-origin: top;
 	transition: visiblity 250ms, opacity 250ms;
+	padding: 2%;
 }
+
 
 @keyframes growDown {
 	0% {
@@ -156,17 +162,35 @@ header{
 
 .queue-header{
 	margin: 0;
+	display: flex;
+	flex-direction: row;
+	color: var(--statetext);
+}
+
+.clear-button{
+	background-color: var(--accent);
+	color: var(--alttext);
+	border-radius: 50px;
+	border-style: none;
+	align-self: flex-end;
+	height: 100%;
+	margin-left: auto;
+}
+
+.clear-button[data-active=false]{
+	background-color: grey;
 }
 
 .queue-list{
 	display: flex;
 	justify-content: space-evenly;
 	flex-direction: column;
-
+	color: var(--statetext);
 }
 
 .queue-element{
 	cursor: pointer;
+
 }
 
 .state-wrapper{
