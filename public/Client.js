@@ -2,33 +2,44 @@
 // BROWSER FUNCTIONS
 // ===============
 function writeCookie(id){
+
 	var now = new Date()
 	now.setMonth(now.getMonth() + 2);
 	document.cookie = `sessionId=${id};expires=${now.toUTCString()};`;
 	exportCreds();
+
 }
 
 function transit(){
+
     document.documentElement.classList.add("transition");
     window.setTimeout(() => {
         document.documentElement.classList.remove("transition");
     }, 1000)
+
 }
 
 function changeTheme(){
+
 	var dmState = document.documentElement.dataset.theme
 	if(dmState === "light"){
+
 		transit();
 		document.documentElement.setAttribute("data-theme", "dark");
 		localStorage.setItem("dark", JSON.stringify(true));
+
 	} else{
+
 		transit();
 		document.documentElement.setAttribute("data-theme", "light");
 		localStorage.setItem("dark", JSON.stringify(false));
+
 	}
+
 }
 
 function getEnv(){
+
 	var prevDmSetting = JSON.parse(localStorage.getItem("dark"));
 	if(prevDmSetting === true){
 		changeTheme();
@@ -39,10 +50,15 @@ function getEnv(){
 
 	dmMediaQuery.addEventListener("change", (event) => {
 		if(event.matches){
+
 			changeTheme();
+
 		} else{
+
 			changeTheme();
+
 		}
+
 	})
 	
 }
@@ -58,7 +74,7 @@ function resizeUI(){
 
 		if(screenMediaQuery.matches){
 
-			var screenWidth = window.screen.width;
+			var screenWidth = window.innerWidth;
 			var playerPxRatio = (9/16)*screenWidth;
 
 			video.style.width = String(screenWidth) + "px";
@@ -76,26 +92,35 @@ function resizeUI(){
 	calSize();
 }
 
-window.addEventListener("resize", resizeUI()) 
+window.addEventListener("resize", resizeUI);
 
 function whichAPIURL(){
+	
 	var host = location.hostname;
+
 	if(host === "localhost"){
+
 		window.API_URL = "http://localhost:5000/sessions";
+
 	} else {
+
 		window.API_URL = "https://mensa-sessions.herokuapp.com/sessions";
+
 	}
 }
 
 function changeState(event, visibility){
+
 	var state = document.querySelector(".state");
 	var stateDisplay = document.querySelector(".state-wrapper");
 
 	state.innerHTML = `${event}...`
 	stateDisplay.dataset.active = String(visibility);
+
 }
 
 function formatTimeString(time) {   
+
     // Hours, minutes and seconds
     var hours = ~~(time / 3600);
     var minutes = ~~((time % 3600) / 60);
@@ -104,8 +129,11 @@ function formatTimeString(time) {
     // Output like "1:01" or "4:03:59" or "123:03:59"
     var display = "";
     if (hours > 0) {
+
         display += "" + hours + ":" + (minutes < 10 ? "0" : "");
+
     }
+	
     display += "" + minutes + ":" + (seconds < 10 ? "0" : "");
     display += "" + seconds;
     return display;

@@ -11,35 +11,48 @@ app.use(cookieParser());
 app.use(express.static(__dirname + "/public"));
 
 app.get("/", (req, res) => {
+
     res.sendFile(__dirname + "public", "index.html");
+    
 });
 
 app.get("/session/:id", (req, res) => {
+
     res.cookie("sessionId", req.params.id, {maxAge: 5259600000});
     res.redirect("/");
+
 })
 
 io.on("connection", (socket) => {
+
     console.log("a user connected");
 
     socket.on("joinEvent", (data) => {
+
         socket.join(data);
         console.log("user joined the room: " + data);
+
     });
 
     socket.on("leaveEvent", (data) => {
+
         socket.leave(data);
         console.log("user left the room: " + data);
+
     })
 
     socket.on("playerEvent", (data) => {
+
         io.to(data.room).emit("playerEvent", data);
         console.log(data);
+
     });
 
     socket.on("submitEvent", (data) => {
+
         io.to(data.room).emit("loadEvent", data);
         console.log(data);
+
     });
 
     socket.on("queueEvent", async (data) =>{
@@ -55,24 +68,27 @@ io.on("connection", (socket) => {
 
         } else if(data.playlist){
 
-            var res = await listSearch(data.url);
+            var res = await listSearch(data.id);
             var queue = [];
 
             for(var i = 0; i < res.items.length; i++){
+
                 var id = res.items[i].id;
                 var title = res.items[i].title;
 
                 queue.push({ id: id, title: title})
+
             }
 
             io.to(data.room).emit("enqueueEvent", queue);
-            console.log("enqueued playlist" + queue[1]);
 
         }
     });
 
     socket.on("disconnect", () => {
+
         console.log("a user disconnected");
+
     });
 });
 
