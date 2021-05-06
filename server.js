@@ -51,6 +51,7 @@ io.on("connection", (socket) => {
 
             var queue = { id: id, title: title }
             io.to(data.room).emit("enqueueEvent", queue);
+            console.log("enqueued: " + queue);
 
         } else if(data.playlist){
 
@@ -65,7 +66,8 @@ io.on("connection", (socket) => {
             }
 
             io.to(data.room).emit("enqueueEvent", queue);
-            
+            console.log("enqueued playlist" + queue[1]);
+
         }
     });
 

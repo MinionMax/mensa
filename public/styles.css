@@ -65,7 +65,7 @@ html.transition *:after {
 	padding: 0.3rem;
 	display: flex;
 	height: max-content;
-	max-height: 35rem;
+	max-height: 50%;
 	box-sizing: border-box;
 	width: 500px;
 	border-color: var(--text);
@@ -78,6 +78,12 @@ html.transition *:after {
 	left: 0;
 	right: 0;
 	margin: 0 auto;
+	overflow: hidden;
+}
+
+.submit[data-queue=true]{
+	overflow-y: auto;
+	scrollbar-color: var(--accent) var(--bg);
 }
 
 header{
@@ -132,7 +138,7 @@ header{
 	width: 0;
 	border-radius: 6px;
 	opacity: 0;
-	max-height: 35rem;
+	max-height: 100%;
 }
 
 .queue-container[data-visibility=visible]{
@@ -192,6 +198,7 @@ header{
 
 .clear-button[data-active=false]{
 	background-color: grey;
+	cursor: pointer;
 }
 
 .queue-list{
@@ -203,7 +210,7 @@ header{
 
 .queue-element{
 	cursor: pointer;
-	animation: growOut 250ms ease-in-out forwards;
+	animation: growOut 250ms ease-in-out forwards;	
 	padding: 1%;
 }
 

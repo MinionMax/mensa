@@ -56,9 +56,9 @@ function sendSubmitEvent(data){
 			return;
 		} else if(input.length === 28){
 			var id = input.split(".be/")[1];
-		} else if(input.includes("https://") && input.length > 43){
+		} else if(input.includes("https://") && input.length > 43 && !input.includes("playlist")){
 			var id = input.split("watch?v=")[1].split("?")[0];
-		}
+		} else if(input.includes("playlist")) return sendQueueEvent();
 	
 		submitedData = { videoId: id, room: CREDS.roomName };
 		socket.emit("submitEvent", submitedData);
@@ -89,6 +89,8 @@ function sendQueueEvent(){
 		var submitedData = { url: input, playlist: true, room: CREDS.roomName };
 		socket.emit("queueEvent", submitedData);
 	}
+
+	document.querySelector(".URL").value = ""
 }
 
 socket.on("playerEvent", (data) => {
@@ -116,25 +118,33 @@ socket.on("loadEvent", (data) => {
 socket.on("enqueueEvent", (data) => {
 	var queue = CREDS.queue;
 
-	var objectConstructor = ({}).constructor;
-	var arrayConstructor = [].constructor;
+	changeState("submitting video", false);
 
-	if(!queue  && data.constructor === objectConstructor){
+	var dataType = checkObjType(data)
+
+	if(!queue && dataType === "JSON"){
 		var newQueue = [{ id: data.id, title: data.title }];
 		localStorage.setItem("queue", JSON.stringify(newQueue));
 		localStorage.setItem("queueIndex", JSON.stringify(-1));
 		exportCreds();
 		fillQueue();
-	} else if(!queue && data.constructor === arrayConstructor){
+	} else if(!queue && dataType === "Array"){
 		localStorage.setItem("queue", JSON.stringify(data));
 		localStorage.setItem("queueIndex", JSON.stringify(-1));
 		exportCreds();
 		fillQueue();
-	} else {
+	} else if(dataType === "JSON"){
 		queue.push(data);
 		localStorage.setItem("queue", JSON.stringify(queue));
 		exportCreds();
 		fillQueue();
+	} else if(dataType === "Array"){
+		for(var i = 0; i < data.length; i++){
+			queue.push(data[i]);
+			localStorage.setItem("queue", JSON.stringify(queue));
+			exportCreds();
+			fillQueue();
+		}
 	}
 
 	updateSession();

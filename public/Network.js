@@ -4,7 +4,9 @@
 function getSession(){
 
 	if(!CREDS.sessionId || CREDS.sessionId === "favicon.ico"){
+		
 		const newSession = async (url, body) => {
+
 			const response = await fetch(url, {
 				method: "POST",
 				mode: "cors",
@@ -16,24 +18,35 @@ function getSession(){
 				referrerPolicy: "no-referrer",
 				body: JSON.stringify(body)
 			});
+
 			return response.json();
+
 		}
 
 		roomNameGen().then((roomName) => {
+
 			changeState("creating session", true);
+
 			newSession(API_URL + "/new", { videoId: "undefined", roomName: roomName[0]})
+				
 				.then(data => {
 					writeCookie(data.id);
 					joinRoom(data);
 					sendSubmitEvent(data);
 					changeState("creating session", false);
 				});
+
 			localStorage.setItem("roomName", JSON.stringify(roomName));
 			exportCreds();
+
 		})
+
 	} else {
+
 		const fetchSession = async (url) => {
+
 			changeState("fetching session", true);
+
 			const response = await fetch(url, {
 				method: "GET",
 				mode: "cors",
@@ -44,11 +57,14 @@ function getSession(){
 				redirect: "follow",
 				referrerPolicy: "no-referrer",
 			});
+
 			return response.json();
 		}
 
 		fetchSession(API_URL + `/last/${CREDS.sessionId}`)
+
 			.then(data => {
+
 				changeState("fetching session", false)
 				localStorage.setItem("roomName", JSON.stringify(data.roomName));
                 localStorage.setItem("queue", JSON.stringify(data.queue));
@@ -57,23 +73,30 @@ function getSession(){
 				joinRoom(data);
 				sendSubmitEvent(data);
                 fillQueue();
+
 			}).catch(err => {
+
 				changeState("failed fetching session", true)
 				document.cookie = "sessionId=;";
 				exportCreds();
 				getSession();
+
 			})
+
 	}
 }
 
 async function roomNameGen(){
+
 	const response = await fetch("https://random-word-api.herokuapp.com/word");
 	return response.json();
+
 }
 
 function updateSession(){
 
 	const putSession = async (url, body) => {
+
 		const response = await fetch(url, {
 			method: "PUT",
 			mode: "cors",
@@ -85,6 +108,7 @@ function updateSession(){
 			referrerPolicy: "no-referrer",
 			body: JSON.stringify(body)
 		});
+
 		return response;
 	}
 
@@ -106,7 +130,9 @@ function updateSession(){
 function destroySession(){
 
 	const deleteSession = async (url) => {
+
 		changeState("destroying session", true);
+
 		const response = await fetch(url, {
 			method: "DELETE",
 			mode: "cors",
@@ -117,18 +143,23 @@ function destroySession(){
 			redirect: "follow",
 			referrerPolicy: "no-referrer",
 		})
+
 		return response;
 	}
 
 	deleteSession(API_URL + `/destroy/${CREDS.sessionId}`)
+
 		.then(data => {
+
 			changeState("destroying session", false);
-		
 			leaveRoom(CREDS.roomName);
 			getSession();
+
 		}).catch(err =>{
+
 			document.cookie = "sessionId=;";
 			exportCreds();
 			getSession();
+
 		});
 }

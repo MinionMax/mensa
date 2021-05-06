@@ -20,7 +20,7 @@ function fillQueue() {
 		liElem.innerHTML = "nothing here yet, enqueue a video to play next";
 		return;
 
-	} else if(queue) clearB.dataset.active = true
+	} else if(queue) clearB.dataset.active = true;
 
 	for(var i = 0; i < queue.length; i++){
 		var liElem = document.createElement("li");
@@ -217,6 +217,7 @@ function initUI(){
 			queue.dataset.visibility = "hidden";
 			submitb.innerHTML = "submit";
 			submitb.dataset.role = "submit";
+			form.dataset.queue = "false"
 			return;
 		}
 		fillQueue();
@@ -224,6 +225,7 @@ function initUI(){
 		queue.style.visibility = "visible";
 		submitb.innerHTML = "enqueue";
 		submitb.dataset.role = "enqueue";
+		form.dataset.queue = "true"
 	});
 
 	clearB.addEventListener("click", () => {
@@ -231,6 +233,7 @@ function initUI(){
 			localStorage.removeItem("queue");
 			localStorage.removeItem("queueIndex");
 			exportCreds();
+			updateSession();
 			fillQueue();
 		}
 

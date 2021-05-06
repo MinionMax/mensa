@@ -44,14 +44,18 @@ function getEnv(){
 			changeTheme();
 		}
 	})
+	
 }
 getEnv();
 
 function resizeUI(){
+
 	var screenMediaQuery = window.matchMedia("(max-width: 959px)");
 	var video = document.querySelector(".player-wrapper");
 	var submit = document.querySelector(".submit");
+
 	const calSize = () => {
+
 		if(screenMediaQuery.matches){
 
 			var screenWidth = window.screen.width;
@@ -60,7 +64,9 @@ function resizeUI(){
 			video.style.width = String(screenWidth) + "px";
 			video.style.height = String(playerPxRatio) + "px";
 			submit.style.width = "100%"
+
 		} else{
+
 			video.style.width = "960px";
 			video.style.height = "540px";
 			submit.style.width = "500px"
@@ -111,8 +117,18 @@ function exportCreds(){
 	var roomName = JSON.parse(localStorage.getItem("roomName"));
 	var dark = JSON.parse(localStorage.getItem("dark"));
 	var queue = (JSON.parse(localStorage.getItem("queue") || "{}"));
-	var queueIndex = (JSON.parse(localStorage.getItem("queueIndex"))) || null;
+	var queueIndex = (JSON.parse(localStorage.getItem("queueIndex") || "{}"));
 
+	if(queue && queueIndex){
+
+		var queueType = checkObjType(queue);
+		var queueIndexType = checkObjType(queueIndex);
+
+		if(queueType === "JSON") queue = null;
+		if(queueIndexType === "JSON") queueIndex = null;
+
+	}
+	
 	const creds = {
 		sessionId: sessionId,
 		roomName: roomName,
@@ -122,4 +138,15 @@ function exportCreds(){
 	}
 
 	window.CREDS = creds;
+
+}
+
+function checkObjType(object){
+
+	var objectConstructor = ({}).constructor;
+	var arrayConstructor = [].constructor;
+
+	if(object.constructor === objectConstructor) return "JSON";
+	if(object.constructor === arrayConstructor) return "Array";
+
 }
