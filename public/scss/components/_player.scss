@@ -1,0 +1,11 @@
+.player-wrapper{
+	align-self: center;
+	margin-top: 50px;
+	cursor: pointer;
+	width: 960px;
+	height: 540px;
+
+    #player{
+        pointer-events: none;
+    }
+}

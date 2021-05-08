@@ -1,0 +1,558 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap");
+@media (prefers-color-scheme: light) {
+  html {
+    --accent: #407294;
+    --text: black;
+    --pannel: #333333;
+    --alttext: white;
+    --statetext: black;
+    --bg: #fff;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  html[data-theme=dark] {
+    --accent: #423896;
+    --text: #333333;
+    --pannel: #333333;
+    --alttext: #fff;
+    --statetext: white;
+    --bg: rgb(17, 17, 17);
+  }
+}
+html {
+  --accent: #407294;
+  --text: black;
+  --pannel: white;
+  --alttext: white;
+  --statetext: black;
+  --bg: #fff;
+}
+
+html[data-theme=dark] {
+  --accent: #423896;
+  --text: #333333;
+  --pannel: #333333;
+  --alttext: #fff;
+  --statetext: white;
+  --bg: rgb(17, 17, 17);
+}
+
+header {
+  height: 3em;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.submit {
+  padding: 0.3rem;
+  display: flex;
+  height: max-content;
+  max-height: 50%;
+  box-sizing: border-box;
+  width: 500px;
+  border-color: var(--text);
+  border-style: solid;
+  background-color: var(--bg);
+  border-radius: 6px;
+  position: absolute;
+  justify-content: center;
+  flex-wrap: wrap;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  overflow: hidden;
+}
+.submit[data-queue=true] {
+  overflow-y: auto;
+  scrollbar-color: var(--accent) var(--bg);
+}
+.submit[data-queue=true] ::-webkit-scrollbar-thumb {
+  background: var(--accent);
+}
+.submit[data-queue=true] ::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+.submit .list {
+  align-self: center;
+}
+.submit .list .fas.fa-list {
+  margin-right: 5px;
+  cursor: pointer;
+  color: var(--text);
+}
+.submit .URL {
+  border: none;
+  padding: 0 1rem;
+  flex-grow: 1;
+  border-radius: 2rem;
+  margin: 0.25rem;
+  color: var(--statetext);
+  background-color: var(--bg);
+  transition: color 250ms, background-color 250ms;
+  height: 30px;
+  align-self: center;
+}
+.submit .URL::placeholder {
+  color: var(--statetext);
+}
+.submit .URL[data-error=true] {
+  background-color: #ff6262;
+  color: var(--alttext);
+  text-align: center;
+  font-weight: bold;
+}
+.submit .submit-button {
+  background-color: var(--accent);
+  color: var(--alttext);
+  outline: none;
+  border: none;
+  cursor: pointer;
+  height: 30px;
+  align-self: center;
+}
+.submit .queue-container {
+  align-self: center;
+  background-color: var(--pannel);
+  color: var(--alttext);
+  height: 0;
+  width: 0;
+  border-radius: 6px;
+  opacity: 0;
+  max-height: 100%;
+}
+.submit .queue-container[data-visibility=visible] {
+  visibility: visible;
+  opacity: 1;
+  z-index: 2;
+  height: max-content;
+  width: 100%;
+  animation: growDown 300ms ease-in-out both;
+  transform-origin: top;
+  transition: visiblity 250ms, opacity 250ms;
+  padding: 2%;
+}
+.submit .queue-container .queue-header {
+  margin: 0;
+  display: flex;
+  flex-direction: row;
+  color: var(--statetext);
+}
+.submit .queue-container .queue-header .clear-button {
+  background-color: var(--accent);
+  color: var(--alttext);
+  border-radius: 50px;
+  border-style: none;
+  align-self: flex-end;
+  height: 100%;
+  margin-left: auto;
+}
+.submit .queue-container .queue-header .clear-button[data-active=false] {
+  background-color: grey;
+  cursor: pointer;
+}
+.submit .queue-container .queue-list {
+  display: flex;
+  justify-content: space-evenly;
+  flex-direction: column;
+  color: var(--statetext);
+}
+.submit .queue-container .queue-list .queue-element {
+  cursor: pointer;
+  animation: growOut 250ms ease-in-out forwards;
+  padding: 1%;
+}
+
+@keyframes growDown {
+  0% {
+    transform: scaleY(0);
+  }
+  80% {
+    transform: scaleY(1.1);
+  }
+  100% {
+    transform: scaleY(1);
+  }
+}
+@keyframes growOut {
+  0% {
+    transform: translateX(-100%);
+  }
+  80% {
+    transform: translateX(-10%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+.state-wrapper {
+  display: flex;
+  justify-content: center;
+  visibility: hidden;
+  transition: visibility 250ms, opacity 250ms;
+  opacity: 0;
+}
+.state-wrapper[data-active=true] {
+  visibility: visible;
+  opacity: 1;
+}
+.state-wrapper .loader {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  position: relative;
+  border: 4px solid var(--accent);
+  top: 50%;
+  animation: loader 2s infinite ease;
+  align-self: center;
+}
+.state-wrapper .loader .loader-inner {
+  vertical-align: top;
+  display: inline-block;
+  width: 100%;
+  background-color: var(--accent);
+  animation: loader-inner 2s infinite ease-in;
+}
+.state-wrapper .state {
+  font-size: 10px;
+  margin-left: 10px;
+  color: var(--statetext);
+}
+
+@keyframes loader {
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(180deg);
+  }
+  50% {
+    transform: rotate(180deg);
+  }
+  75% {
+    transform: rotate(360deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+@keyframes loader-inner {
+  0% {
+    height: 0%;
+  }
+  25% {
+    height: 0%;
+  }
+  50% {
+    height: 100%;
+  }
+  75% {
+    height: 100%;
+  }
+  100% {
+    height: 0%;
+  }
+}
+.player-wrapper {
+  align-self: center;
+  margin-top: 50px;
+  cursor: pointer;
+  width: 960px;
+  height: 540px;
+}
+.player-wrapper #player {
+  pointer-events: none;
+}
+
+.controls {
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+  align-items: center;
+}
+.controls .play {
+  align-self: center;
+}
+.controls .pause {
+  align-self: center;
+}
+.controls .fas {
+  margin-right: 5px;
+  cursor: pointer;
+  color: var(--text);
+}
+.controls .progress {
+  background-color: var(--text);
+  width: 400px;
+  height: 4px;
+  align-self: center;
+  margin-left: 10px;
+  margin-right: 8px;
+  cursor: pointer;
+  float: left;
+}
+.controls .progress .cursor {
+  width: 10px;
+  height: 10px;
+  bottom: 6px;
+  position: relative;
+  border-style: solid;
+  align-self: center;
+  transition: 200ms;
+  color: var(--text);
+  display: flex;
+  justify-content: center;
+  z-index: 2;
+}
+.controls .progress .cursor .timer {
+  background-color: var(--text);
+  color: var(--alttext);
+  font-size: 12px;
+  height: fit-content;
+  height: -moz-fit-content;
+  width: fit-content;
+  width: -moz-fit-content;
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 250ms, opacity 250ms;
+  position: absolute;
+  top: 150%;
+  padding: 0.5em;
+  border-radius: 5px;
+}
+.controls .progress .cursor .timer[data-active=true] {
+  visibility: visible;
+  opacity: 0.6;
+}
+.controls .progress .cursor.alt {
+  width: 1px;
+  background-color: var(--text);
+  border-radius: 20%;
+  opacity: 0;
+  transition: visibility 250ms, opacity 250ms;
+  visibility: hidden;
+  flex-shrink: 0;
+  transform: translateY(-100%);
+  z-index: 1;
+}
+.controls .progress .cursor.alt[data-active=true] {
+  visibility: visible;
+  opacity: 1;
+}
+.controls .volume-container {
+  height: 10px;
+  border-style: solid;
+  width: 50px;
+  align-self: center;
+  margin-left: 2px;
+  cursor: pointer;
+  color: var(--text);
+}
+.controls .volume-container .meter {
+  height: 100%;
+  background-color: var(--accent);
+  transition: 500ms;
+}
+
+.menu {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 400px;
+  height: 150px;
+  border-radius: 10px;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: 250ms;
+  transition-property: opacity;
+  z-index: -1;
+  background-color: var(--accent);
+  display: flex;
+  justify-content: center;
+}
+.menu .menu-li {
+  list-style-type: none;
+  padding: 0;
+  display: flex;
+  justify-content: space-evenly;
+  flex-direction: column;
+  text-align: center;
+}
+.menu .menu-li .menu-item {
+  color: var(--alttext);
+  cursor: pointer;
+  transition: 400ms;
+}
+.menu .menu-li .menu-item:hover {
+  font-size: 20px;
+}
+.menu .menu-li .menu-item .fas.fa-share-alt-square {
+  margin-right: 5px;
+  cursor: pointer;
+  color: var(--alttext);
+}
+.menu .menu-li .menu-item .fas.fa-trash {
+  margin-right: 5px;
+  cursor: pointer;
+  color: var(--alttext);
+}
+.menu .menu-li .menu-item .fas.fa-adjust {
+  margin-right: 5px;
+  cursor: pointer;
+  color: var(--alttext);
+}
+.menu .menu-li .fas.fa-trash {
+  margin-right: 5px;
+  cursor: pointer;
+  color: var(--alttext);
+}
+
+.destroy-valid-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 400px;
+  height: 150px;
+  border-radius: 10px;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: 250ms;
+  transition-property: opacity;
+  z-index: -1;
+  background-color: var(--accent);
+  text-align: center;
+  display: flex;
+  justify-content: space-evenly;
+  align-content: center;
+  flex-direction: column;
+}
+.destroy-valid-container .appear {
+  opacity: 1;
+  z-index: 3;
+  transition: 250ms;
+  transition-property: opacity;
+}
+.destroy-valid-container .sure {
+  color: var(--alttext);
+  margin-bottom: 8px;
+  margin-top: 0;
+}
+.destroy-valid-container .instruction {
+  color: var(--alttext);
+  margin: 0;
+}
+.destroy-valid-container .valid {
+  width: 40%;
+  height: 15%;
+  border-radius: 6px;
+  border: none;
+  align-self: center;
+}
+.destroy-valid-container .far.fa-check-circle {
+  font-size: 30px;
+  color: #aaaaaa;
+  cursor: pointer;
+  transition: 250ms;
+}
+.destroy-valid-container .far.fa-check-circle[data-active=true] {
+  font-size: 30px;
+  color: #42f342;
+  cursor: pointer;
+}
+.destroy-valid-container .far.fa-times-circle {
+  font-size: 30px;
+  color: #ff6262;
+  cursor: pointer;
+}
+
+.hamburger-container {
+  display: flex;
+  justify-content: center;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+.hamburger-container .hamburger-wrapper {
+  background-color: var(--accent);
+  width: 90px;
+  display: flex;
+  justify-content: center;
+  border-top-left-radius: 40px;
+  border-top-right-radius: 40px;
+}
+.hamburger-container .hamburger-wrapper .hamburger {
+  width: 30px;
+  height: 30px;
+  margin-left: 3px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  z-index: 5;
+}
+.hamburger-container .hamburger-wrapper .hamburger .line {
+  width: 100%;
+  height: 3px;
+  background-color: var(--alttext);
+  transition: all 250ms;
+}
+.hamburger-container .hamburger-wrapper .hamburger .change .line-1 {
+  transform: rotateZ(-45deg) translate(-8px, 6px);
+}
+.hamburger-container .hamburger-wrapper .hamburger .change .line-2 {
+  opacity: 0;
+}
+.hamburger-container .hamburger-wrapper .hamburger .change .line-3 {
+  transform: rotateZ(45deg) translate(-8px, -6px);
+}
+
+.appear {
+  opacity: 1;
+  z-index: 3;
+  transition: 250ms;
+  transition-property: opacity;
+}
+
+.blur {
+  filter: blur(4px);
+  transition: all 250ms;
+}
+
+.done {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(-1em);
+  color: #000;
+  transition: all 0.5s;
+}
+
+.copied.done {
+  opacity: 1;
+  transform: translateY(-0.25em);
+  color: var(--alttext);
+}
+
+* {
+  font-family: "roboto mono";
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  background-color: var(--bg);
+}
+
+html.transition,
+html.transition *,
+html.transition *:before,
+html.transition *:after {
+  transition: all 750ms !important;
+  transition-delay: 0 !important;
+}
+
+/*# sourceMappingURL=styles.css.map */

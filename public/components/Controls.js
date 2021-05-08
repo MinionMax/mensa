@@ -14,6 +14,7 @@ function fillQueue() {
 	var queue = CREDS.queue
 
 	if(!queue){
+		
 		var liElem = document.createElement("li");
 		clearB.dataset.active = false;
 		queueList.appendChild(liElem);

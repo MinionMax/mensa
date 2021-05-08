@@ -28,7 +28,7 @@ function changeTheme(){
 		document.documentElement.setAttribute("data-theme", "dark");
 		localStorage.setItem("dark", JSON.stringify(true));
 
-	} else{
+	} else {
 
 		transit();
 		document.documentElement.setAttribute("data-theme", "light");

@@ -1,0 +1,209 @@
+.menu {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 400px;
+	height: 150px;
+	border-radius: 10px;
+	transform: translate(-50%, -50%);
+	opacity: 0;
+	transition: 250ms;
+	transition-property: opacity;
+	z-index: -1;
+	background-color: var(--accent);
+	display: flex;
+	justify-content: center;
+
+
+    .menu-li{
+        list-style-type: none;
+        padding: 0;
+        display: flex;
+        justify-content: space-evenly;
+        flex-direction: column;
+        text-align: center;
+
+
+        .menu-item {
+            color: var(--alttext);
+            cursor: pointer;
+            transition: 400ms;
+
+
+
+            &:hover{
+                font-size: 20px;
+            }
+
+            .fas.fa-share-alt-square{
+                margin-right: 5px;
+                cursor: pointer;
+                color: var(--alttext);
+            }
+
+
+            .fas.fa-trash {
+                margin-right: 5px;
+                cursor: pointer;
+                color: var(--alttext);
+            }
+
+            .fas.fa-adjust {
+                margin-right: 5px;
+                cursor: pointer;
+                color: var(--alttext);
+            }
+        }
+
+        .fas.fa-trash {
+            margin-right: 5px;
+            cursor: pointer;
+            color: var(--alttext);
+        }
+    }
+}
+
+
+.destroy-valid-container{
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 400px;
+	height: 150px;
+	border-radius: 10px;
+	transform: translate(-50%, -50%);
+	opacity: 0;
+	transition: 250ms;
+	transition-property: opacity;
+	z-index: -1;
+	background-color: var(--accent);
+	text-align: center;
+	display: flex;
+	justify-content: space-evenly;
+	align-content: center;
+	flex-direction: column;
+
+    .appear{
+        opacity: 1;
+        z-index: 3;
+        transition: 250ms;
+        transition-property: opacity;
+    }
+    
+    .sure{
+        color: var(--alttext);
+        margin-bottom: 8px;
+        margin-top: 0;
+    }
+
+
+    .instruction{
+        color: var(--alttext);
+        margin: 0;
+    }
+
+    .valid{
+        width: 40%;
+        height: 15%;
+        border-radius: 6px;
+        border: none;
+        align-self: center;
+    }
+
+    .far.fa-check-circle {
+        font-size: 30px;
+        color: rgb(170, 170, 170);
+        cursor: pointer;
+        transition: 250ms;
+
+        &[data-active=true] {
+            font-size: 30px;
+            color: rgb(66, 243, 66);
+            cursor: pointer;
+        }
+    }
+
+    .far.fa-times-circle{
+        font-size: 30px;
+        color: rgb(255, 98, 98);
+        cursor: pointer;
+    }
+
+}
+
+.hamburger-container {
+	display: flex;
+	justify-content: center;
+	position: fixed;
+	bottom: 0;
+	width: 100%;
+
+    .hamburger-wrapper {
+        background-color: var(--accent);
+        width: 90px;
+        display: flex;
+        justify-content: center;
+        border-top-left-radius: 40px;
+        border-top-right-radius: 40px;
+
+        .hamburger{
+            width: 30px;
+            height: 30px;
+            margin-left: 3px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            z-index: 5;
+
+            .line{
+                width: 100%;
+                height: 3px;
+                background-color: var(--alttext);
+                transition: all 250ms;
+            }
+            
+            .change .line-1{
+                transform: rotateZ(-45deg) translate(-8px, 6px);
+            }
+
+            .change .line-2{
+                opacity: 0;
+            }
+
+            .change .line-3{
+                transform: rotateZ(45deg) translate(-8px, -6px);
+            }
+        }
+    }
+
+
+}
+
+.appear{
+	opacity: 1;
+	z-index: 3;
+	transition: 250ms;
+	transition-property: opacity;
+}
+
+.blur{
+	filter: blur(4px);
+	transition: all 250ms;
+}
+
+.done{
+    position: absolute;
+    left: 0; top: 0; right: 0;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(-1em);
+    color: #000;
+    transition: all .500s;
+}
+
+.copied.done {
+    opacity: 1;
+    transform: translateY(-0.25em);
+    color: var(--alttext);
+}

@@ -1,0 +1,25 @@
+@use "./themes" as *;
+
+@mixin scrollbar-color($thumb, $track) {
+
+
+	::-webkit-scrollbar-thumb {
+		background: $thumb;
+	}
+
+	::-webkit-scrollbar-track {
+		background: $track;
+	}
+ 
+	scrollbar-color: $thumb $track;
+			
+}
+
+@mixin fit-content(){
+
+	height: fit-content;
+	height: -moz-fit-content;
+	width: fit-content;
+	width: -moz-fit-content;
+
+}

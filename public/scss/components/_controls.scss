@@ -1,0 +1,105 @@
+@use "../abstracts" as *;
+
+.controls{
+	margin-top: 15px;
+	display: flex;
+	justify-content: center;
+	flex-direction: row;
+	align-items: center;
+
+    .play{
+        align-self: center;
+    }
+    
+    .pause{
+        align-self: center;
+    }
+    
+    .fas{
+        margin-right: 5px;
+        cursor: pointer;
+        color: var(--text)
+    }
+
+    .progress{
+        background-color: var(--text);
+        width: 400px;
+        height: 4px;
+        align-self: center;
+        margin-left: 10px;
+        margin-right: 8px;
+        cursor: pointer;
+        float: left;
+
+        .cursor{
+            width: 10px;
+            height: 10px;
+            bottom: 6px;
+            position: relative;
+            border-style: solid;
+            align-self: center;
+            transition: 200ms;
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            z-index: 2;
+
+
+            .timer {
+                background-color: var(--text);
+                color: var(--alttext);
+                font-size: 12px;
+                @include fit-content();
+                visibility: hidden;
+                opacity: 0;
+                transition: visibility 250ms, opacity 250ms;
+                position: absolute;
+                top: 150%;
+                padding: 0.5em;
+                border-radius: 5px;
+
+
+                &[data-active=true] {
+                    visibility: visible;
+                    opacity: 0.6;
+                }
+            }
+        }
+
+
+        .cursor.alt { 
+            width: 1px;
+            background-color: var(--text);
+            border-radius: 20%;
+            opacity: 0;
+            transition: visibility 250ms, opacity 250ms;
+            visibility: hidden;
+            flex-shrink: 0;
+            transform: translateY(-100%);
+            z-index: 1;
+
+            &[data-active=true] {
+                visibility: visible;
+                opacity: 1;
+            }
+
+        }
+
+    }
+
+    .volume-container{
+        height: 10px;
+        border-style: solid;
+        width: 50px;
+        align-self: center;
+        margin-left: 2px;
+        cursor: pointer;
+        color: var(--text);
+
+        .meter{
+            height: 100%;
+            background-color: var(--accent);
+            transition: 500ms;
+        }
+    }
+}

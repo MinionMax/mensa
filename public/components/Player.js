@@ -15,7 +15,7 @@ function onYouTubeIframeAPIReady() {
 		width: '100%',
 		videoId: "dQw4w9WgXcQ",
 		events: {
-			"onStateChange": onPlayerStateChange,
+			// "onStateChange": onPlayerStateChange,
 			"onReady": onPlayerReady
 
 		},
@@ -39,14 +39,14 @@ function onPlayerReady(){
 	player.setVolume(JSON.parse(previousVolume));
 }
 
-function onPlayerStateChange(event){
-	// if(event.data === YT.PlayerState.ENDED && CREDS.queue != null){
-	// 	nextVideo();
-	// }
-	// console.log(event.data)
-	// return;
-	console.log("change");
-}
+// function onPlayerStateChange(event){
+// 	// if(event.data === YT.PlayerState.ENDED && CREDS.queue != null){
+// 	// 	nextVideo();
+// 	// }
+// 	// console.log(event.data)
+// 	// return;
+// 	console.log("change");
+// }
 
 function nextVideo(){
 	var currIndex = CREDS.queueIndex;

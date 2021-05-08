@@ -1,0 +1,39 @@
+@media (prefers-color-scheme: light){
+	html{
+		--accent: #407294;
+		--text: black;
+		--pannel: #333333;
+		--alttext: white;
+		--statetext: black;
+		--bg: #fff;
+	}
+}
+
+@media (prefers-color-scheme: dark){
+	html[data-theme="dark"]{
+		--accent: #423896;
+		--text: #333333;
+		--pannel: #333333;
+		--alttext: #fff;
+		--statetext: white;
+		--bg: rgb(17, 17, 17); 
+	}
+}
+
+html{
+	--accent: #407294;
+	--text: black;
+	--pannel: white;
+	--alttext: white;
+	--statetext: black;
+	--bg: #fff;
+}
+
+html[data-theme="dark"]{
+	--accent: #423896;
+	--text: #333333;
+	--pannel: #333333;
+	--alttext: #fff;
+	--statetext: white;
+	--bg: rgb(17, 17, 17); 
+}
