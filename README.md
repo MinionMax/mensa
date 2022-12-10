@@ -1,5 +1,5 @@
 # mensa
+a service to watch youtube together with other people.
+sessions are saved to a backend server and restored when the page is reloaded.
 
-An ugly w2g.tv clone to watch youtube videos on seperate devices simultaneoulsly.
-Deployed [here](https://js-mensa.herokuapp.com/)<br>
-Damn you random random pleb who stole my url!!!
+## currently out of service due to change in heroku pricing.
